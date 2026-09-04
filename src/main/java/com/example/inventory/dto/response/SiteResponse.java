@@ -1,67 +1,33 @@
-package com.example.inventory.entity;
-
-import jakarta.persistence.*;
+package com.example.inventory.dto.response;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
-
-@Entity
-@Table(name = "network_site")
-public class NetworkSite {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class SiteResponse {
     private Long id;
-
-    @Column(name = "site_code", nullable = false, length = 20)
     private String siteCode;
-
-    @Column(nullable = false, length = 120)
     private String name;
-
-    @Column(length = 255)
     private String address;
-
-    @Column(length = 80)
     private String city;
-
-    @Column(name = "country_code", columnDefinition = "CHAR(2)")
     private String countryCode;
-
-    @Column(precision = 9, scale = 6)
     private BigDecimal latitude;
-
-    @Column(precision = 9, scale = 6)
     private BigDecimal longitude;
-
-    @Column(nullable = false, length = 20)
     private String status;
-
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "site", fetch = FetchType.LAZY)
-    private List<Router> routers;
+    public SiteResponse() {}
 
 
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    // CONSTRUCTORS
-
-    public NetworkSite() {}
-
-
-
-    // Getters-Setters
-
-    public Long getId(){
+    public Long getId() {
         return id;
     }
 
-    public String getSiteCode(){
+    public String getSiteCode() {
         return siteCode;
     }
 
@@ -139,9 +105,5 @@ public class NetworkSite {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public List<Router> getRouters() {
-        return routers;
     }
 }
