@@ -1,67 +1,49 @@
-package com.example.inventory.entity;
+package com.example.inventory.dto.request;
 
-import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
 
-
-@Entity
-@Table(name = "network_site")
-public class NetworkSite {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "site_code", nullable = false, length = 20)
+public class SiteCreateRequest {
+    @NotBlank
+    @Size(max = 20)
     private String siteCode;
 
-    @Column(nullable = false, length = 120)
+    @NotBlank
+    @Size(max = 120)
     private String name;
 
-    @Column(length = 255)
+    @Size(max = 255)
     private String address;
 
-    @Column(length = 80)
+    @Size(max = 80)
     private String city;
 
-    @Column(name = "country_code", columnDefinition = "CHAR(2)")
+    @Pattern(regexp = "^[A-Z]{2}$")
     private String countryCode;
 
-    @Column(precision = 9, scale = 6)
     private BigDecimal latitude;
 
-    @Column(precision = 9, scale = 6)
     private BigDecimal longitude;
 
-    @Column(nullable = false, length = 20)
+    @NotBlank
+    @Pattern(regexp = "^(ACTIVE|PLANNED|DECOMMISSIONED)$")
     private String status;
-
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    @OneToMany(mappedBy = "site", fetch = FetchType.LAZY)
-    private List<Router> routers;
 
 
 
     // CONSTRUCTORS
 
-    public NetworkSite() {}
+    public SiteCreateRequest() {}
 
 
 
     // Getters-Setters
 
-    public Long getId(){
-        return id;
-    }
 
-    public String getSiteCode(){
+    public String getSiteCode() {
         return siteCode;
     }
 
@@ -123,25 +105,5 @@ public class NetworkSite {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public List<Router> getRouters() {
-        return routers;
     }
 }
