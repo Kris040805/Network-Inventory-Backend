@@ -1,58 +1,33 @@
-package com.example.inventory.entity;
-
-import jakarta.persistence.*;
+package com.example.inventory.dto.response;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "slot")
-public class Slot {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class SlotResponse {
     private Long id;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "shelf_id")
-    private Shelf shelf;
-
-    @Column(name = "slot_number", nullable = false)
+    private Long shelfId;
     private Integer slotNumber;
-
-    @Column(name = "slot_type", length = 60)
     private String slotType;
-
-    @Column(nullable = false, length = 20)
     private String status;
-
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToOne(mappedBy = "slot", fetch = FetchType.LAZY)
-    private Card card;
-
-
-
-    // CONSTRUCTORS
-
-    public Slot() {}
-
-
-
-    // Getters-Setters
+    public SlotResponse() {
+    }
 
     public Long getId() {
         return id;
     }
 
-    public Shelf getShelf() {
-        return shelf;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void setShelf(Shelf shelf) {
-        this.shelf = shelf;
+    public Long getShelfId() {
+        return shelfId;
+    }
+
+    public void setShelfId(Long shelfId) {
+        this.shelfId = shelfId;
     }
 
     public Integer getSlotNumber() {
@@ -93,9 +68,5 @@ public class Slot {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public Card getCard() {
-        return card;
     }
 }
