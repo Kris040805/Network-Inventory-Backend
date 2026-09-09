@@ -1,65 +1,37 @@
-package com.example.inventory.entity;
+package com.example.inventory.dto.response;
 
-import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
-@Entity
-@Table(name = "shelf")
-public class Shelf {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class ShelfResponse {
     private Long id;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "router_id")
-    private Router router;
-
-    @Column(name = "shelf_number", nullable = false)
+    private Long routerId;
     private Integer shelfNumber;
-
-    @Column(name = "shelf_type", length = 60)
     private String shelfType;
-
-    @Column(name = "serial_number", length = 60)
     private String serialNumber;
-
-    @Column(name = "total_slots", nullable = false)
     private Integer totalSlots;
-
-    @Column(nullable = false, length = 20)
     private String status;
-
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "shelf", fetch = FetchType.LAZY)
-    private List<Slot> slots;
 
+    public ShelfResponse() {}
 
-
-    // CONSTRUCTORS
-
-    public Shelf() {}
-
-
-
-    // Getters-Setters
 
     public Long getId() {
         return id;
     }
 
-    public Router getRouter() {
-        return router;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void setRouter(Router router) {
-        this.router = router;
+    public Long getRouterId() {
+        return routerId;
+    }
+
+    public void setRouterId(Long routerId) {
+        this.routerId = routerId;
     }
 
     public Integer getShelfNumber() {
@@ -116,9 +88,5 @@ public class Shelf {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public List<Slot> getSlots() {
-        return slots;
     }
 }
