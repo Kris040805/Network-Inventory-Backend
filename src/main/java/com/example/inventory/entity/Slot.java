@@ -34,11 +34,10 @@ public class Slot {
     private Card card;
 
 
-
     // CONSTRUCTORS
 
-    public Slot() {}
-
+    public Slot() {
+    }
 
 
     // Getters-Setters
@@ -97,5 +96,9 @@ public class Slot {
 
     public Card getCard() {
         return card;
+    }
+
+    public void setCard(Card card) {
+        this.card = card;
     }
 }
