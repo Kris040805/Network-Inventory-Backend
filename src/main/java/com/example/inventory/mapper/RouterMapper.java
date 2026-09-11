@@ -4,12 +4,22 @@ import com.example.inventory.dto.request.RouterCreateRequest;
 import com.example.inventory.dto.request.RouterFullUpdateRequest;
 import com.example.inventory.dto.request.RouterPartialUpdateRequest;
 import com.example.inventory.dto.response.RouterResponse;
+import com.example.inventory.dto.response.RouterTreeResponse;
+import com.example.inventory.dto.response.ShelfTreeResponse;
 import com.example.inventory.entity.NetworkSite;
 import com.example.inventory.entity.Router;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class RouterMapper {
+
+    private final ShelfMapper shelfMapper;
+
+    public RouterMapper(ShelfMapper shelfMapper) {
+        this.shelfMapper = shelfMapper;
+    }
 
     public Router toEntity(RouterCreateRequest request, NetworkSite site) {
         Router router = new Router();
@@ -78,6 +88,31 @@ public class RouterMapper {
         if (request.getStatus() != null) {
             router.setStatus(request.getStatus());
         }
+    }
+
+    public RouterTreeResponse toTreeResponse(Router router) {
+        RouterTreeResponse response = new RouterTreeResponse();
+
+        response.setId(router.getId());
+        response.setSiteId(router.getSite().getId());
+        response.setHostname(router.getHostname());
+        response.setVendor(router.getVendor());
+        response.setModel(router.getModel());
+        response.setSerialNumber(router.getSerialNumber());
+        response.setManagementIp(router.getManagementIp());
+        response.setSoftwareVersion(router.getSoftwareVersion());
+        response.setStatus(router.getStatus());
+        response.setCreatedAt(router.getCreatedAt());
+        response.setUpdatedAt(router.getUpdatedAt());
+
+        List<ShelfTreeResponse> shelves = router.getShelves()
+                .stream()
+                .map(shelfMapper::toTreeResponse)
+                .toList();
+
+        response.setShelves(shelves);
+
+        return response;
     }
 
 }
