@@ -1,72 +1,37 @@
-package com.example.inventory.entity;
-
-
-import jakarta.persistence.*;
+package com.example.inventory.dto.response;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
-@Entity
-@Table(name = "router")
-public class Router {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class RouterResponse {
     private Long id;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "site_id")
-    private NetworkSite site;
-
-    @Column(nullable = false, length = 100)
+    private Long siteId;
     private String hostname;
-
-    @Column(nullable = false, length = 60)
     private String vendor;
-
-    @Column(nullable = false, length = 60)
     private String model;
-
-    @Column(name = "serial_number", nullable = false, length = 60)
     private String serialNumber;
-
-    @Column(name = "management_ip", length = 45)
     private String managementIp;
-
-    @Column(name = "software_version", length = 40)
     private String softwareVersion;
-
-    @Column(nullable = false, length = 20)
     private String status;
-
-    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "router", fetch = FetchType.LAZY)
-    private List<Shelf> shelves;
+    public RouterResponse() {}
 
 
-
-    // CONSTRUCTORS
-
-    public Router() {}
-
-
-
-    // Getters-Setters
-
-    public Long getId(){
+    public Long getId() {
         return id;
     }
 
-    public NetworkSite getSite() {
-        return site;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void setSite(NetworkSite site) {
-        this.site = site;
+    public Long getSiteId() {
+        return siteId;
+    }
+
+    public void setSiteId(Long siteId) {
+        this.siteId = siteId;
     }
 
     public String getHostname() {
@@ -139,9 +104,5 @@ public class Router {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
-    }
-
-    public List<Shelf> getShelves() {
-        return shelves;
     }
 }
