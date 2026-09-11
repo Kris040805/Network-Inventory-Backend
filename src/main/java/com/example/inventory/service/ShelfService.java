@@ -5,12 +5,14 @@ import com.example.inventory.dto.request.ShelfFullUpdateRequest;
 import com.example.inventory.dto.request.ShelfPartialUpdateRequest;
 import com.example.inventory.dto.response.PageResponse;
 import com.example.inventory.dto.response.ShelfResponse;
+import com.example.inventory.dto.response.SlotResponse;
 import com.example.inventory.entity.Router;
 import com.example.inventory.entity.Shelf;
 import com.example.inventory.entity.Slot;
 import com.example.inventory.exception.ConflictException;
 import com.example.inventory.exception.NotFoundException;
 import com.example.inventory.mapper.ShelfMapper;
+import com.example.inventory.mapper.SlotMapper;
 import com.example.inventory.repository.CardRepository;
 import com.example.inventory.repository.RouterRepository;
 import com.example.inventory.repository.ShelfRepository;
@@ -29,13 +31,15 @@ public class ShelfService {
     private final RouterRepository routerRepository;
     private final SlotRepository slotRepository;
     private final CardRepository cardRepository;
+    private final SlotMapper slotMapper;
 
-    public ShelfService(ShelfMapper mapper, ShelfRepository repository, RouterRepository routerRepository, SlotRepository slotRepository, CardRepository cardRepository) {
+    public ShelfService(ShelfMapper mapper, ShelfRepository repository, RouterRepository routerRepository, SlotRepository slotRepository, CardRepository cardRepository, SlotMapper slotMapper) {
         this.mapper = mapper;
         this.repository = repository;
         this.routerRepository = routerRepository;
         this.slotRepository = slotRepository;
         this.cardRepository = cardRepository;
+        this.slotMapper = slotMapper;
     }
 
     public ShelfResponse create(ShelfCreateRequest request) {
@@ -139,5 +143,16 @@ public class ShelfService {
 
         repository.delete(shelf);
     }
+
+
+    public List<SlotResponse> getSlots(Long id) {
+        repository.findById(id).orElseThrow(() -> new NotFoundException("Shelf with id " + id + " does not exist"));
+        List<SlotResponse> slots = slotRepository.findByShelfId(id).stream().map(slotMapper::toResponse).toList();
+        return slots;
+    }
+
+
+
+
 
 }

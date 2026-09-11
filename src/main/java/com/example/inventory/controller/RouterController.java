@@ -5,6 +5,8 @@ import com.example.inventory.dto.request.RouterFullUpdateRequest;
 import com.example.inventory.dto.request.RouterPartialUpdateRequest;
 import com.example.inventory.dto.response.PageResponse;
 import com.example.inventory.dto.response.RouterResponse;
+import com.example.inventory.dto.response.RouterTreeResponse;
+import com.example.inventory.dto.response.ShelfResponse;
 import com.example.inventory.service.RouterService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -14,6 +16,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.data.domain.Pageable;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/routers")
@@ -71,5 +74,18 @@ public class RouterController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+
+    @GetMapping("/{id}/shelves")
+    public ResponseEntity<List<ShelfResponse>> getShelves(@PathVariable Long id) {
+        List<ShelfResponse> response = service.getShelves(id);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+
+    @GetMapping("/{id}/tree")
+    public ResponseEntity<RouterTreeResponse> getTree(@PathVariable Long id) {
+        RouterTreeResponse response = service.getTree(id);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 
 }

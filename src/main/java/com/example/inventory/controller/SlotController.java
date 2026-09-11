@@ -3,6 +3,7 @@ package com.example.inventory.controller;
 import com.example.inventory.dto.request.SlotCreateRequest;
 import com.example.inventory.dto.request.SlotFullUpdateRequest;
 import com.example.inventory.dto.request.SlotPartialUpdateRequest;
+import com.example.inventory.dto.response.CardResponse;
 import com.example.inventory.dto.response.PageResponse;
 import com.example.inventory.dto.response.SlotResponse;
 import com.example.inventory.service.SlotService;
@@ -69,6 +70,13 @@ public class SlotController {
     public ResponseEntity<Void> delete(@PathVariable Long id, @RequestParam(defaultValue = "false") boolean cascade) {
         service.delete(id, cascade);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+
+    @GetMapping("/{id}/card")
+    public ResponseEntity<CardResponse> getCard(@PathVariable Long id) {
+        CardResponse response = service.getCard(id);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
 }

@@ -6,6 +6,7 @@ import com.example.inventory.dto.request.ShelfFullUpdateRequest;
 import com.example.inventory.dto.request.ShelfPartialUpdateRequest;
 import com.example.inventory.dto.response.PageResponse;
 import com.example.inventory.dto.response.ShelfResponse;
+import com.example.inventory.dto.response.SlotResponse;
 import com.example.inventory.service.ShelfService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/shelves")
@@ -69,6 +71,13 @@ public class ShelfController {
     public ResponseEntity<Void> delete(@PathVariable Long id, @RequestParam(defaultValue = "false") boolean cascade) {
         service.delete(id, cascade);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+
+    @GetMapping("/{id}/slots")
+    public ResponseEntity<List<SlotResponse>> getSlots(@PathVariable Long id) {
+        List<SlotResponse> response = service.getSlots(id);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
 }
