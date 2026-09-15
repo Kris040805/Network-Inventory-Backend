@@ -18,6 +18,7 @@ public class ShelfPartialUpdateRequest {
     @Positive
     private Integer totalSlots;
 
+    @Size(max = 20)
     private String status;
 
     public ShelfPartialUpdateRequest() {
