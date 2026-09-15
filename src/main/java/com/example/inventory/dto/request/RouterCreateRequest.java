@@ -1,6 +1,7 @@
 package com.example.inventory.dto.request;
 
 
+import com.example.inventory.validation.ValidIp;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -26,6 +27,7 @@ public class RouterCreateRequest {
     @Size(max = 60)
     private String serialNumber;
 
+    @ValidIp
     @Size(max = 45)
     private String managementIp;
 

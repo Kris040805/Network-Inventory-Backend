@@ -1,5 +1,6 @@
 package com.example.inventory.dto.request;
 
+import com.example.inventory.validation.ValidIp;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -19,6 +20,7 @@ public class RouterPartialUpdateRequest {
     @Size(max = 60)
     private String serialNumber;
 
+    @ValidIp
     @Size(max = 45)
     private String managementIp;
 
