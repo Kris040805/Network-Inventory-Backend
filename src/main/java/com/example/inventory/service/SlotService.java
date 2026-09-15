@@ -1,12 +1,14 @@
 package com.example.inventory.service;
 
 
+import com.example.inventory.dto.request.CardInstallRequest;
 import com.example.inventory.dto.request.SlotCreateRequest;
 import com.example.inventory.dto.request.SlotFullUpdateRequest;
 import com.example.inventory.dto.request.SlotPartialUpdateRequest;
 import com.example.inventory.dto.response.CardResponse;
 import com.example.inventory.dto.response.PageResponse;
 import com.example.inventory.dto.response.SlotResponse;
+import com.example.inventory.entity.Card;
 import com.example.inventory.entity.Shelf;
 import com.example.inventory.entity.Slot;
 import com.example.inventory.exception.ConflictException;
@@ -148,6 +150,48 @@ public class SlotService {
 
         return cardMapper.toResponse(slot.getCard());
     }
+
+
+    // Using transactional so Hibernate can save the status change without slotRepository.save()
+    // This is possible because slot is managed entity
+    @Transactional
+    public CardResponse installCard(Long id, CardInstallRequest request) {
+        Slot slot = repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Slot with id " + id + " does not exist"));
+
+        if (cardRepository.existsBySlotId(id)) {
+            throw new ConflictException("Slot with id " + id + " already has a card");
+        }
+
+        if (cardRepository.existsBySerialNumber(request.getSerialNumber())) {
+            throw new ConflictException("Card with serial number " + request.getSerialNumber() + " already exists");
+        }
+
+        Card card = cardRepository.save(cardMapper.toEntity(request, slot));
+
+        slot.setStatus("OCCUPIED");
+
+        return cardMapper.toResponse(card);
+    }
+
+
+    @Transactional
+    public void deleteCard(Long id) {
+        Slot slot = repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Slot with id " + id + " does not exist"));
+
+        Card card = slot.getCard();
+
+        if (card == null) {
+            throw new NotFoundException("Slot with id " + id + " does not have a card");
+        }
+
+        slot.setStatus("EMPTY");
+        slot.setCard(null);
+        card.setSlot(null);
+        cardRepository.delete(card);
+    }
+
 
 
 }

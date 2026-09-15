@@ -1,5 +1,6 @@
 package com.example.inventory.controller;
 
+import com.example.inventory.dto.request.CardInstallRequest;
 import com.example.inventory.dto.request.SlotCreateRequest;
 import com.example.inventory.dto.request.SlotFullUpdateRequest;
 import com.example.inventory.dto.request.SlotPartialUpdateRequest;
@@ -79,15 +80,27 @@ public class SlotController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+
+    @PostMapping("/{id}/card")
+    public ResponseEntity<CardResponse> installCard(@PathVariable Long id, @Valid @RequestBody CardInstallRequest request) {
+        CardResponse response = service.installCard(id, request);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("api/v1/cards/{id}")
+                .buildAndExpand(response.getId())
+                .toUri();
+
+        return ResponseEntity.status(HttpStatus.CREATED).location(location).body(response);
+    }
+
+
+    @DeleteMapping("/{id}/card")
+    public ResponseEntity<Void> deleteCard(@PathVariable Long id) {
+        service.deleteCard(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+
 }
-
-
-
-
-
-
-
-
-
-
 
