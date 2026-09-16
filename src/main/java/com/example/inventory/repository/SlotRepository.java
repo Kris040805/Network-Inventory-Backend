@@ -1,6 +1,5 @@
 package com.example.inventory.repository;
 
-import com.example.inventory.entity.Shelf;
 import com.example.inventory.entity.Slot;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

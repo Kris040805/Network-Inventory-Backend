@@ -24,6 +24,7 @@ public class ShelfFullUpdateRequest {
     private Integer totalSlots;
 
     @NotBlank
+    @Size(max = 20)
     private String status;
 
     public ShelfFullUpdateRequest() {}

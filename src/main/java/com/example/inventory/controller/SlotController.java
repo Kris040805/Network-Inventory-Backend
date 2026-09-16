@@ -86,8 +86,8 @@ public class SlotController {
         CardResponse response = service.installCard(id, request);
 
         URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("api/v1/cards/{id}")
+                .fromCurrentContextPath()
+                .path("/api/v1/cards/{id}")
                 .buildAndExpand(response.getId())
                 .toUri();
 
