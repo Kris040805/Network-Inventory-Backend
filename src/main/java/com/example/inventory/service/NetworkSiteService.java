@@ -4,6 +4,7 @@ import com.example.inventory.dto.request.SiteCreateRequest;
 import com.example.inventory.dto.request.SiteFullUpdateRequest;
 import com.example.inventory.dto.request.SitePartialUpdateRequest;
 import com.example.inventory.dto.response.PageResponse;
+import com.example.inventory.dto.response.RouterResponse;
 import com.example.inventory.dto.response.SiteResponse;
 import com.example.inventory.entity.NetworkSite;
 import com.example.inventory.entity.Router;
@@ -12,6 +13,7 @@ import com.example.inventory.entity.Slot;
 import com.example.inventory.exception.ConflictException;
 import com.example.inventory.exception.NotFoundException;
 import com.example.inventory.mapper.NetworkSiteMapper;
+import com.example.inventory.mapper.RouterMapper;
 import com.example.inventory.repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -28,14 +30,17 @@ public class NetworkSiteService {
     private final ShelfRepository shelfRepository;
     private final SlotRepository slotRepository;
     private final CardRepository cardRepository;
+    private final RouterMapper routerMapper;
 
-    public NetworkSiteService(NetworkSiteMapper mapper, NetworkSiteRepository repository, RouterRepository routerRepository, ShelfRepository shelfRepository, SlotRepository slotRepository, CardRepository cardRepository) {
+
+    public NetworkSiteService(NetworkSiteMapper mapper, NetworkSiteRepository repository, RouterRepository routerRepository, ShelfRepository shelfRepository, SlotRepository slotRepository, CardRepository cardRepository, RouterMapper routerMapper) {
         this.mapper = mapper;
         this.repository = repository;
         this.routerRepository = routerRepository;
         this.shelfRepository = shelfRepository;
         this.slotRepository = slotRepository;
         this.cardRepository = cardRepository;
+        this.routerMapper = routerMapper;
     }
 
     // Create site
@@ -120,31 +125,44 @@ public class NetworkSiteService {
                 .orElseThrow(() -> new NotFoundException("Site with id " + id + " not found"));
 
         if (repository.existsByIdAndRoutersIsNotEmpty(id)) {
-             if (cascade) {
-                 List<Router> routers = routerRepository.findBySiteId(id);
+            if (cascade) {
+                List<Router> routers = routerRepository.findBySiteId(id);
 
-                 for (Router router : routers) {
-                     List<Shelf> shelves = shelfRepository.findByRouterId(router.getId());
+                for (Router router : routers) {
+                    List<Shelf> shelves = shelfRepository.findByRouterId(router.getId());
 
-                     for (Shelf shelf : shelves) {
-                         List<Slot> slots = slotRepository.findByShelfId(shelf.getId());
+                    for (Shelf shelf : shelves) {
+                        List<Slot> slots = slotRepository.findByShelfId(shelf.getId());
 
-                         for (Slot slot : slots) {
-                             cardRepository.deleteBySlotId(slot.getId());
-                         }
+                        for (Slot slot : slots) {
+                            cardRepository.deleteBySlotId(slot.getId());
+                        }
 
-                         slotRepository.deleteByShelfId(shelf.getId());
-                     }
+                        slotRepository.deleteByShelfId(shelf.getId());
+                    }
 
-                     shelfRepository.deleteByRouterId(router.getId());
-                 }
+                    shelfRepository.deleteByRouterId(router.getId());
+                }
 
-                 routerRepository.deleteBySiteId(id);
-             } else {
-                 throw new ConflictException("Cannot delete site with routers unless cascade=true");
-             }
+                routerRepository.deleteBySiteId(id);
+            } else {
+                throw new ConflictException("Cannot delete site with routers unless cascade=true");
+            }
         }
 
         repository.delete(site);
     }
+
+
+    public List<RouterResponse> getRouters(Long id) {
+        repository.findById(id).orElseThrow(() -> new NotFoundException("Site with id " + id + " does not exist"));
+
+        List<RouterResponse> routers = routerRepository.findBySiteId(id).stream().map(routerMapper::toResponse).toList();
+
+        return routers;
+    }
+
+
+
+
 }

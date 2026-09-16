@@ -2,6 +2,7 @@ package com.example.inventory.mapper;
 
 import com.example.inventory.dto.request.CardCreateRequest;
 import com.example.inventory.dto.request.CardFullUpdateRequest;
+import com.example.inventory.dto.request.CardInstallRequest;
 import com.example.inventory.dto.request.CardPartialUpdateRequest;
 import com.example.inventory.dto.response.CardResponse;
 import com.example.inventory.entity.Card;
@@ -20,6 +21,20 @@ public class CardMapper {
         card.setPortCount(request.getPortCount());
         card.setHardwareRevision(request.getHardwareRevision());
         card.setStatus(request.getStatus());
+
+        return card;
+    }
+
+    public Card toEntity(CardInstallRequest request, Slot slot) {
+        Card card = new Card();
+
+        card.setSlot(slot);
+        card.setPartNumber(request.getPartNumber());
+        card.setSerialNumber(request.getSerialNumber());
+        card.setCardType(request.getCardType());
+        card.setPortCount(request.getPortCount());
+        card.setHardwareRevision(request.getHardwareRevision());
+        card.setStatus("INSTALLED");
 
         return card;
     }

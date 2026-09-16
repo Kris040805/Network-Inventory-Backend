@@ -4,6 +4,7 @@ import com.example.inventory.dto.request.SiteCreateRequest;
 import com.example.inventory.dto.request.SiteFullUpdateRequest;
 import com.example.inventory.dto.request.SitePartialUpdateRequest;
 import com.example.inventory.dto.response.PageResponse;
+import com.example.inventory.dto.response.RouterResponse;
 import com.example.inventory.dto.response.SiteResponse;
 import com.example.inventory.service.NetworkSiteService;
 import jakarta.validation.Valid;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 
 @RestController
@@ -73,5 +75,16 @@ public class NetworkSiteController {
         service.delete(id, cascade);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+
+    @GetMapping("/{id}/routers")
+    public ResponseEntity<List<RouterResponse>> getRouters(@PathVariable Long id) {
+        List<RouterResponse> response = service.getRouters(id);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+
+
+
 
 }
