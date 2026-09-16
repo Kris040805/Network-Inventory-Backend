@@ -17,6 +17,8 @@ import com.example.inventory.mapper.RouterMapper;
 import com.example.inventory.mapper.ShelfMapper;
 import com.example.inventory.repository.*;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,8 @@ import java.util.List;
 
 @Service
 public class RouterService {
+    private static final Logger logger = LoggerFactory.getLogger(RouterService.class);
+
     private final RouterMapper mapper;
     private final RouterRepository repository;
     private final NetworkSiteRepository networkSiteRepository;
@@ -44,20 +48,34 @@ public class RouterService {
     }
 
     public RouterResponse create(RouterCreateRequest request) {
-        NetworkSite site = networkSiteRepository.findById(request.getSiteId()).orElseThrow(() -> new NotFoundException("Site with id " + request.getSiteId() + " does not exist"));
+        logger.info("Creating router with hostname: {} and serial number: {}",
+                request.getHostname(), request.getSerialNumber());
+
+        NetworkSite site = networkSiteRepository.findById(request.getSiteId())
+                .orElseThrow(() -> {
+                    logger.warn("Network site not found with id: {}", request.getSiteId());
+                    return new NotFoundException("Site with id " + request.getSiteId() + " does not exist");
+                });
 
         if (repository.existsByHostnameOrSerialNumber(request.getHostname(), request.getSerialNumber())) {
+            logger.warn("Cannot create router. Hostname or serial number already exists");
             throw new ConflictException("Router with hostname or serial number already exists");
         }
 
         Router router = mapper.toEntity(request, site);
-        return mapper.toResponse(repository.save(router));
+        Router saved = repository.save(router);
+
+        logger.info("Router created successfully with id: {}", saved.getId());
+
+        return mapper.toResponse(saved);
     }
 
 
     public PageResponse<RouterResponse> getAll(Pageable pageable, String status) {
 
+        logger.info("Fetching routers with status: {}", status);
         Page<Router> routers = repository.findAllByFilters(status, pageable);
+        logger.info("Found {} routers", routers.getTotalElements());
         List<RouterResponse> items = routers.getContent().stream().map(mapper::toResponse).toList();
 
         PageResponse<RouterResponse> response = new PageResponse<>(items, routers.getNumber(), routers.getSize(), routers.getTotalElements(), routers.getTotalPages());
@@ -65,50 +83,88 @@ public class RouterService {
     }
 
     public RouterResponse getById(Long id) {
-        Router router = repository.findById(id).orElseThrow(() -> new NotFoundException("Router with id " + id + " does not exist"));
+        logger.info("Fetching router with id: {}", id);
+
+        Router router = repository.findById(id)
+                .orElseThrow(() -> {
+                    logger.warn("Router not found with id: {}", id);
+                    return new NotFoundException("Router with id " + id + " does not exist");
+                });
 
         return mapper.toResponse(router);
     }
 
 
     public RouterResponse update(Long id, RouterFullUpdateRequest request) {
-        Router router = repository.findById(id).orElseThrow(() -> new NotFoundException("Router with id " + id + " does not exist"));
+        logger.info("Updating router with id: {}", id);
 
-        NetworkSite site = networkSiteRepository.findById(request.getSiteId()).orElseThrow(() -> new NotFoundException("Site with id " + request.getSiteId() + " does not exist"));
+        Router router = repository.findById(id)
+                .orElseThrow(() -> {
+                    logger.warn("Router not found with id: {}", id);
+                    return new NotFoundException("Router with id " + id + " does not exist");
+                });
+
+        NetworkSite site = networkSiteRepository.findById(request.getSiteId())
+                .orElseThrow(() -> {
+                    logger.warn("Network site not found with id: {}", request.getSiteId());
+                    return new NotFoundException("Site with id " + request.getSiteId() + " does not exist");
+                });
 
         if (repository.existsByHostnameAndIdNot(request.getHostname(), id) || repository.existsBySerialNumberAndIdNot(request.getSerialNumber(), id)) {
-
+            logger.warn("Cannot update router. Hostname or serial number already exists");
             throw new ConflictException("Router with hostname " + request.getHostname() + " or serial number " + request.getSerialNumber() + " already exists");
         }
 
         mapper.updateEntity(request, router, site);
         Router updated = repository.save(router);
+
+        logger.info("Router updated successfully with id: {}", updated.getId());
+
         return mapper.toResponse(updated);
     }
 
 
     public RouterResponse update(Long id, RouterPartialUpdateRequest request) {
-        Router router = repository.findById(id).orElseThrow(() -> new NotFoundException("Router with id " + id + " does not exist"));
+        logger.info("Partially updating router with id: {}", id);
+
+        Router router = repository.findById(id)
+                .orElseThrow(() -> {
+                    logger.warn("Router not found with id: {}", id);
+                    return new NotFoundException("Router with id " + id + " does not exist");
+                });
 
         NetworkSite site = null;
 
         if (request.getSiteId() != null) {
-            site = networkSiteRepository.findById(request.getSiteId()).orElseThrow(() -> new NotFoundException("Site with id " + request.getSiteId() + " does not exist"));
-
+            site = networkSiteRepository.findById(request.getSiteId())
+                    .orElseThrow(() -> {
+                        logger.warn("Network site not found with id: {}", request.getSiteId());
+                        return new NotFoundException("Site with id " + request.getSiteId() + " does not exist");
+                    });
         }
 
         if ((request.getHostname() != null && repository.existsByHostnameAndIdNot(request.getHostname(), id)) || (request.getSerialNumber() != null && repository.existsBySerialNumberAndIdNot(request.getSerialNumber(), id))) {
+            logger.warn("Cannot partially update router. Hostname or serial number already exists");
             throw new ConflictException("Router with hostname " + request.getHostname() + " or serial number " + request.getSerialNumber() + " already exists");
         }
 
         mapper.updateEntity(request, router, site);
         Router updated = repository.save(router);
+
+        logger.info("Router partially updated successfully with id: {}", updated.getId());
+
         return mapper.toResponse(updated);
     }
 
     @Transactional
     public void delete(Long id, boolean cascade) {
-        Router router = repository.findById(id).orElseThrow(() -> new NotFoundException("Router with id " + id + " does not exist"));
+        logger.info("Deleting router with id: {} and cascade: {}", id, cascade);
+
+        Router router = repository.findById(id)
+                .orElseThrow(() -> {
+                    logger.warn("Router not found with id: {}", id);
+                    return new NotFoundException("Router with id " + id + " does not exist");
+                });
 
         if (repository.existsByIdAndShelvesIsNotEmpty(id)) {
             if (cascade) {
@@ -126,25 +182,45 @@ public class RouterService {
                 shelfRepository.deleteByRouterId(id);
 
             } else {
+                logger.warn("Cannot delete router with id: {} because it has shelves and cascade=false", id);
                 throw new ConflictException("Cannot delete router with shelves unless cascade=true");
             }
         }
 
         repository.delete(router);
+        logger.info("Router deleted successfully with id: {}", id);
     }
 
 
     public List<ShelfResponse> getShelves(Long id) {
-        repository.findById(id).orElseThrow(() -> new NotFoundException("Router with id " + id + " does not exist"));
+        logger.info("Fetching shelves for router with id: {}", id);
+        repository.findById(id)
+                .orElseThrow(() -> {
+                    logger.warn("Router not found with id: {}", id);
+                    return new NotFoundException("Router with id " + id + " does not exist");
+                });
         List<ShelfResponse> shelves = shelfRepository.findByRouterId(id).stream().map(shelfMapper::toResponse).toList();
+
+        logger.info("Found {} shelves for router with id: {}", shelves.size(), id);
+
         return shelves;
     }
 
     @Transactional
     public RouterTreeResponse getTree(Long id) {
-        Router router = repository.findById(id).orElseThrow(() -> new NotFoundException("Router with id " + id + " does not exist"));
+        logger.info("Fetching router tree for router with id: {}", id);
 
-        return mapper.toTreeResponse(router);
+        Router router = repository.findById(id)
+                .orElseThrow(() -> {
+                    logger.warn("Router not found with id: {}", id);
+                    return new NotFoundException("Router with id " + id + " does not exist");
+                });
+
+        RouterTreeResponse response = mapper.toTreeResponse(router);
+
+        logger.info("Router tree fetched successfully for router with id: {}", id);
+
+        return response;
     }
 
 
