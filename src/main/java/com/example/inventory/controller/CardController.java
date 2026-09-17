@@ -7,6 +7,7 @@ import com.example.inventory.dto.response.CardResponse;
 import com.example.inventory.dto.response.PageResponse;
 import com.example.inventory.service.CardService;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +42,7 @@ public class CardController {
 
     @GetMapping
     public ResponseEntity<PageResponse<CardResponse>> getAll(
-            Pageable pageable,
+            @ParameterObject Pageable pageable,
             @RequestParam(required = false) String status) {
 
         PageResponse<CardResponse> response = service.getAll(pageable, status);

@@ -1,6 +1,7 @@
 package com.example.inventory.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Generated;
 
 import java.time.LocalDateTime;
 
@@ -33,7 +34,8 @@ public class Card {
     @Column(nullable = false, length = 20)
     private String status;
 
-    @Column(name = "created_at", nullable = false)
+    @Generated
+    @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")

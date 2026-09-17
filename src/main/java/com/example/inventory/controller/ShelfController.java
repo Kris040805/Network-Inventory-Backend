@@ -9,6 +9,7 @@ import com.example.inventory.dto.response.ShelfResponse;
 import com.example.inventory.dto.response.SlotResponse;
 import com.example.inventory.service.ShelfService;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +44,7 @@ public class ShelfController {
 
     @GetMapping
     public ResponseEntity<PageResponse<ShelfResponse>> getAll(
-            Pageable pageable,
+            @ParameterObject Pageable pageable,
             @RequestParam(required = false) String status) {
         PageResponse<ShelfResponse> response = service.getAll(pageable, status);
         return ResponseEntity.status(HttpStatus.OK).body(response);
