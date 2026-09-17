@@ -9,6 +9,7 @@ import com.example.inventory.dto.response.RouterTreeResponse;
 import com.example.inventory.dto.response.ShelfResponse;
 import com.example.inventory.service.RouterService;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,7 +44,7 @@ public class RouterController {
 
     @GetMapping
     public ResponseEntity<PageResponse<RouterResponse>> getAll(
-            Pageable pageable,
+            @ParameterObject Pageable pageable,
             @RequestParam(required = false) String status) {
 
         PageResponse<RouterResponse> response = service.getAll(pageable, status);

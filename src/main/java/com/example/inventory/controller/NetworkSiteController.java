@@ -8,6 +8,7 @@ import com.example.inventory.dto.response.RouterResponse;
 import com.example.inventory.dto.response.SiteResponse;
 import com.example.inventory.service.NetworkSiteService;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,7 +50,7 @@ public class NetworkSiteController {
 
     @GetMapping
     public ResponseEntity<PageResponse<SiteResponse>> getAll(
-            Pageable pageable,
+            @ParameterObject Pageable pageable,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String city) {
 

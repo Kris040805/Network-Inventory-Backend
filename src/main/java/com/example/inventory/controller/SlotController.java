@@ -9,6 +9,7 @@ import com.example.inventory.dto.response.PageResponse;
 import com.example.inventory.dto.response.SlotResponse;
 import com.example.inventory.service.SlotService;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +43,7 @@ public class SlotController {
 
     @GetMapping
     public ResponseEntity<PageResponse<SlotResponse>> getAll(
-            Pageable pageable,
+            @ParameterObject Pageable pageable,
             @RequestParam(required = false) String status
     ) {
         PageResponse<SlotResponse> response = service.getAll(pageable, status);
