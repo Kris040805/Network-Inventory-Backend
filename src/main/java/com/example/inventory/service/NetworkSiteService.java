@@ -53,7 +53,7 @@ public class NetworkSiteService {
 
         if (repository.existsBySiteCode(request.getSiteCode())) {
             logger.warn("Cannot create network site. Site code already exists: {}", request.getSiteCode());
-            throw new ConflictException("Site with site code already exists");
+            throw new ConflictException("Site with site code " + request.getSiteCode() + " already exists");
         }
 
         NetworkSite site = mapper.toEntity(request);
