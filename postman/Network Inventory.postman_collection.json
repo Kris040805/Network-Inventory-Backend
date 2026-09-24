@@ -1,0 +1,2096 @@
+{
+  "info": {
+    "_postman_id": "65d67e88-c91b-4e9c-b9aa-a589967a986c",
+    "name": "Network Inventory",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "57698699",
+    "_collection_link": "https://go.postman.co/collection/57698699-65d67e88-c91b-4e9c-b9aa-a589967a986c?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Sites",
+      "item": [
+        {
+          "name": "Create Site",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"siteCode\");\r\n    pm.expect(json).to.have.property(\"name\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n});\r\n\r\npm.test(\"Field types are correct\", function () {\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.siteCode).to.be.a(\"string\");\r\n    pm.expect(json.name).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Created site has expected values\", function () {\r\n    pm.expect(json.siteCode)\r\n        .to.eql(pm.environment.get(\"testSiteCode\"));\r\n    pm.expect(json.name).to.eql(\"Postman Test Site\");\r\n    pm.expect(json.status).to.eql(\"ACTIVE\");\r\n});\r\n\r\npm.environment.set(\"siteId\", json.id);"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const siteCode = \"PS-\" + Date.now().toString().slice(-8);\r\n\r\npm.environment.set(\"testSiteCode\", siteCode);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"siteCode\": \"{{testSiteCode}}\",\r\n    \"name\": \"Postman Test Site\",\r\n    \"address\": \"Test Address 1\",\r\n    \"city\": \"Sofia\",\r\n    \"countryCode\": \"BG\",\r\n    \"latitude\": 42.6977,\r\n    \"longitude\": 23.3219,\r\n    \"status\": \"ACTIVE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sites",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sites"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Site",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"siteCode\");\r\n    pm.expect(json).to.have.property(\"name\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n});\r\n\r\npm.test(\"Field types are correct\", function () {\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.siteCode).to.be.a(\"string\");\r\n    pm.expect(json.name).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Correct site is returned\", function () {\r\n    pm.expect(json.id).to.eql(Number(pm.environment.get(\"siteId\")));\r\n    pm.expect(json.siteCode).to.eql(\"POSTMAN-SITE-001\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sites/{{siteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sites",
+                "{{siteId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Sites",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains pagination fields\", function () {\r\n    pm.expect(json).to.have.property(\"items\");\r\n    pm.expect(json).to.have.property(\"page\");\r\n    pm.expect(json).to.have.property(\"size\");\r\n    pm.expect(json).to.have.property(\"totalElements\");\r\n    pm.expect(json).to.have.property(\"totalPages\");\r\n});\r\n\r\npm.test(\"Pagination fields have correct types\", function () {\r\n    pm.expect(json.items).to.be.an(\"array\");\r\n    pm.expect(json.page).to.be.a(\"number\");\r\n    pm.expect(json.size).to.be.a(\"number\");\r\n    pm.expect(json.totalElements).to.be.a(\"number\");\r\n    pm.expect(json.totalPages).to.be.a(\"number\");\r\n});\r\n\r\npm.test(\"Pagination values are correct\", function () {\r\n    pm.expect(json.page).to.eql(0);\r\n    pm.expect(json.size).to.eql(20);\r\n});\r\n\r\npm.test(\"Site items have required fields\", function () {\r\n    json.items.forEach(function (site) {\r\n        pm.expect(site).to.have.property(\"id\");\r\n        pm.expect(site).to.have.property(\"siteCode\");\r\n        pm.expect(site).to.have.property(\"name\");\r\n        pm.expect(site).to.have.property(\"status\");\r\n    });\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sites?page=0&size=20&sort=id,asc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sites"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                },
+                {
+                  "key": "sort",
+                  "value": "id,asc"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Site",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"siteCode\");\r\n    pm.expect(json).to.have.property(\"name\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n});\r\n\r\npm.test(\"Field types are correct\", function () {\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.siteCode).to.be.a(\"string\");\r\n    pm.expect(json.name).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Site was updated correctly\", function () {\r\n    pm.expect(json.id).to.eql(Number(pm.environment.get(\"siteId\")));\r\n    pm.expect(json.siteCode).to.eql(\"POSTMAN-SITE-001\");\r\n    pm.expect(json.name).to.eql(\"Updated Postman Site\");\r\n    pm.expect(json.status).to.eql(\"PLANNED\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"siteCode\": \"POSTMAN-SITE-001\",\r\n    \"name\": \"Updated Postman Site\",\r\n    \"address\": \"Updated Address 10\",\r\n    \"city\": \"Sofia\",\r\n    \"countryCode\": \"BG\",\r\n    \"latitude\": 42.6977,\r\n    \"longitude\": 23.3219,\r\n    \"status\": \"PLANNED\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sites/{{siteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sites",
+                "{{siteId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Patch Site",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"siteCode\");\r\n    pm.expect(json).to.have.property(\"name\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n});\r\n\r\npm.test(\"Field types are correct\", function () {\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.siteCode).to.be.a(\"string\");\r\n    pm.expect(json.name).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Site was partially updated correctly\", function () {\r\n    pm.expect(json.id).to.eql(Number(pm.environment.get(\"siteId\")));\r\n    pm.expect(json.name).to.eql(\"Patched Postman Site\");\r\n    pm.expect(json.status).to.eql(\"ACTIVE\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Patched Postman Site\",\r\n    \"status\": \"ACTIVE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sites/{{siteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sites",
+                "{{siteId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Site",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {\r\n    pm.response.to.have.status(204);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Response body is empty\", function () {\r\n    pm.expect(pm.response.text()).to.eql(\"\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sites/{{siteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sites",
+                "{{siteId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Duplicate Site Code",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 409\", function () {\r\n    pm.response.to.have.status(409);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Error response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"timestamp\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n    pm.expect(json).to.have.property(\"error\");\r\n    pm.expect(json).to.have.property(\"message\");\r\n    pm.expect(json).to.have.property(\"path\");\r\n});\r\n\r\npm.test(\"Error response field types are correct\", function () {\r\n    pm.expect(json.timestamp).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"number\");\r\n    pm.expect(json.error).to.be.a(\"string\");\r\n    pm.expect(json.message).to.be.a(\"string\");\r\n    pm.expect(json.path).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Error status is 409\", function () {\r\n    pm.expect(json.status).to.eql(409);\r\n});\r\n\r\npm.test(\"Error message indicates duplicate site\", function () {\r\n    pm.expect(json.message.toLowerCase())\r\n        .to.include(\"already exists\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"siteCode\": \"POSTMAN-SITE-001\",\r\n    \"name\": \"Duplicate Site\",\r\n    \"address\": \"Duplicate Address\",\r\n    \"city\": \"Sofia\",\r\n    \"countryCode\": \"BG\",\r\n    \"latitude\": 42.7000,\r\n    \"longitude\": 23.3200,\r\n    \"status\": \"ACTIVE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sites",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sites"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Site - Missing Required Field",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains error fields\", function () {\r\n    pm.expect(json).to.have.property(\"timestamp\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n    pm.expect(json).to.have.property(\"error\");\r\n    pm.expect(json).to.have.property(\"message\");\r\n    pm.expect(json).to.have.property(\"path\");\r\n});\r\n\r\npm.test(\"Error field types are correct\", function () {\r\n    pm.expect(json.timestamp).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"number\");\r\n    pm.expect(json.error).to.be.a(\"string\");\r\n    pm.expect(json.message).to.be.a(\"string\");\r\n    pm.expect(json.path).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Error status is 400\", function () {\r\n    pm.expect(json.status).to.eql(400);\r\n});\r\n\r\npm.test(\"Error message indicates missing name\", function () {\r\n    pm.expect(json.message.toLowerCase())\r\n        .to.include(\"name\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"siteCode\": \"POSTMAN-INVALID-001\",\r\n    \"address\": \"Invalid Address\",\r\n    \"city\": \"Sofia\",\r\n    \"countryCode\": \"BG\",\r\n    \"latitude\": 42.6977,\r\n    \"longitude\": 23.3219,\r\n    \"status\": \"ACTIVE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sites",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sites"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Site - Invalid Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains error fields\", function () {\r\n    pm.expect(json).to.have.property(\"timestamp\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n    pm.expect(json).to.have.property(\"error\");\r\n    pm.expect(json).to.have.property(\"message\");\r\n    pm.expect(json).to.have.property(\"path\");\r\n});\r\n\r\npm.test(\"Error field types are correct\", function () {\r\n    pm.expect(json.timestamp).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"number\");\r\n    pm.expect(json.error).to.be.a(\"string\");\r\n    pm.expect(json.message).to.be.a(\"string\");\r\n    pm.expect(json.path).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Error status is 400\", function () {\r\n    pm.expect(json.status).to.eql(400);\r\n});\r\n\r\npm.test(\"Error message indicates invalid status\", function () {\r\n    pm.expect(json.message.toLowerCase())\r\n        .to.include(\"status\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"siteCode\": \"POSTMAN-INVALID-STATUS-001\",\r\n    \"name\": \"Invalid Status Site\",\r\n    \"address\": \"Invalid Address\",\r\n    \"city\": \"Sofia\",\r\n    \"countryCode\": \"BG\",\r\n    \"latitude\": 42.6977,\r\n    \"longitude\": 23.3219,\r\n    \"status\": \"INVALID\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sites",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sites"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Site with Children",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 409\", function () {\r\n    pm.response.to.have.status(409);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains error fields\", function () {\r\n    pm.expect(json).to.have.property(\"timestamp\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n    pm.expect(json).to.have.property(\"error\");\r\n    pm.expect(json).to.have.property(\"message\");\r\n    pm.expect(json).to.have.property(\"path\");\r\n});\r\n\r\npm.test(\"Error field types are correct\", function () {\r\n    pm.expect(json.timestamp).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"number\");\r\n    pm.expect(json.error).to.be.a(\"string\");\r\n    pm.expect(json.message).to.be.a(\"string\");\r\n    pm.expect(json.path).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Error status is 409\", function () {\r\n    pm.expect(json.status).to.eql(409);\r\n});\r\n\r\npm.test(\"Error message indicates child routers\", function () {\r\n    pm.expect(json.message.toLowerCase())\r\n        .to.include(\"routers\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sites/{{siteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sites",
+                "{{siteId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Site - Cascade",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {\r\n    pm.response.to.have.status(204);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Response body is empty\", function () {\r\n    pm.expect(pm.response.text()).to.eql(\"\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sites/{{siteId}}?cascade=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sites",
+                "{{siteId}}"
+              ],
+              "query": [
+                {
+                  "key": "cascade",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Routers",
+      "item": [
+        {
+          "name": "Create Router",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"siteId\");\r\n    pm.expect(json).to.have.property(\"hostname\");\r\n    pm.expect(json).to.have.property(\"vendor\");\r\n    pm.expect(json).to.have.property(\"model\");\r\n    pm.expect(json).to.have.property(\"serialNumber\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n});\r\n\r\npm.test(\"Field types are correct\", function () {\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.siteId).to.be.a(\"number\");\r\n    pm.expect(json.hostname).to.be.a(\"string\");\r\n    pm.expect(json.vendor).to.be.a(\"string\");\r\n    pm.expect(json.model).to.be.a(\"string\");\r\n    pm.expect(json.serialNumber).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Router was created with expected values\", function () {\r\n    pm.expect(json.siteId).to.eql(Number(pm.environment.get(\"siteId\")));\r\n    pm.expect(json.hostname)\r\n        .to.eql(pm.environment.get(\"testRouterHostname\"));\r\n    pm.expect(json.serialNumber)\r\n        .to.eql(pm.environment.get(\"testRouterSerial\"));\r\n    pm.expect(json.status).to.eql(\"IN_SERVICE\");\r\n});\r\n\r\npm.environment.set(\"routerId\", json.id);"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const routerSuffix = Date.now();\r\n\r\npm.environment.set(\"testRouterHostname\", \"postman-router-\" + routerSuffix);\r\npm.environment.set(\"testRouterSerial\", \"POSTMAN-RTR-\" + routerSuffix);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"siteId\": {{siteId}},\r\n    \"hostname\": \"{{testRouterHostname}}\",\r\n    \"vendor\": \"Cisco\",\r\n    \"model\": \"ASR-1001\",\r\n    \"serialNumber\": \"{{testRouterSerial}}\",\r\n    \"managementIp\": \"192.168.1.10\",\r\n    \"softwareVersion\": \"17.9.4\",\r\n    \"status\": \"IN_SERVICE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/routers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "routers"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Router",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"siteId\");\r\n    pm.expect(json).to.have.property(\"hostname\");\r\n    pm.expect(json).to.have.property(\"vendor\");\r\n    pm.expect(json).to.have.property(\"model\");\r\n    pm.expect(json).to.have.property(\"serialNumber\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n});\r\n\r\npm.test(\"Field types are correct\", function () {\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.siteId).to.be.a(\"number\");\r\n    pm.expect(json.hostname).to.be.a(\"string\");\r\n    pm.expect(json.vendor).to.be.a(\"string\");\r\n    pm.expect(json.model).to.be.a(\"string\");\r\n    pm.expect(json.serialNumber).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Correct router is returned\", function () {\r\n    pm.expect(json.id).to.eql(Number(pm.environment.get(\"routerId\")));\r\n    pm.expect(json.siteId).to.eql(Number(pm.environment.get(\"siteId\")));\r\n    pm.expect(json.hostname).to.eql(\"postman-router-01\");\r\n    pm.expect(json.serialNumber).to.eql(\"POSTMAN-RTR-001\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/routers/{{routerId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "routers",
+                "{{routerId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Routers",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains pagination fields\", function () {\r\n    pm.expect(json).to.have.property(\"items\");\r\n    pm.expect(json).to.have.property(\"page\");\r\n    pm.expect(json).to.have.property(\"size\");\r\n    pm.expect(json).to.have.property(\"totalElements\");\r\n    pm.expect(json).to.have.property(\"totalPages\");\r\n});\r\n\r\npm.test(\"Pagination fields have correct types\", function () {\r\n    pm.expect(json.items).to.be.an(\"array\");\r\n    pm.expect(json.page).to.be.a(\"number\");\r\n    pm.expect(json.size).to.be.a(\"number\");\r\n    pm.expect(json.totalElements).to.be.a(\"number\");\r\n    pm.expect(json.totalPages).to.be.a(\"number\");\r\n});\r\n\r\npm.test(\"Pagination values are correct\", function () {\r\n    pm.expect(json.page).to.eql(0);\r\n    pm.expect(json.size).to.eql(20);\r\n});\r\n\r\npm.test(\"Router items have required fields\", function () {\r\n    json.items.forEach(function (router) {\r\n        pm.expect(router).to.have.property(\"id\");\r\n        pm.expect(router).to.have.property(\"siteId\");\r\n        pm.expect(router).to.have.property(\"hostname\");\r\n        pm.expect(router).to.have.property(\"serialNumber\");\r\n        pm.expect(router).to.have.property(\"status\");\r\n    });\r\n});\r\n\r\npm.test(\"Router item field types are correct\", function () {\r\n    json.items.forEach(function (router) {\r\n        pm.expect(router.id).to.be.a(\"number\");\r\n        pm.expect(router.siteId).to.be.a(\"number\");\r\n        pm.expect(router.hostname).to.be.a(\"string\");\r\n        pm.expect(router.serialNumber).to.be.a(\"string\");\r\n        pm.expect(router.status).to.be.a(\"string\");\r\n    });\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/routers?page=0&size=20&sort=id,asc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "routers"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                },
+                {
+                  "key": "sort",
+                  "value": "id,asc"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Router",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"siteId\");\r\n    pm.expect(json).to.have.property(\"hostname\");\r\n    pm.expect(json).to.have.property(\"vendor\");\r\n    pm.expect(json).to.have.property(\"model\");\r\n    pm.expect(json).to.have.property(\"serialNumber\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n});\r\n\r\npm.test(\"Field types are correct\", function () {\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.siteId).to.be.a(\"number\");\r\n    pm.expect(json.hostname).to.be.a(\"string\");\r\n    pm.expect(json.vendor).to.be.a(\"string\");\r\n    pm.expect(json.model).to.be.a(\"string\");\r\n    pm.expect(json.serialNumber).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Router was updated correctly\", function () {\r\n    pm.expect(json.id).to.eql(Number(pm.environment.get(\"routerId\")));\r\n    pm.expect(json.siteId).to.eql(Number(pm.environment.get(\"siteId\")));\r\n    pm.expect(json.model).to.eql(\"ASR-1001-X\");\r\n    pm.expect(json.managementIp).to.eql(\"192.168.1.20\");\r\n    pm.expect(json.softwareVersion).to.eql(\"17.9.5\");\r\n    pm.expect(json.status).to.eql(\"MAINTENANCE\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"siteId\": {{siteId}},\r\n    \"hostname\": \"postman-router-01\",\r\n    \"vendor\": \"Cisco\",\r\n    \"model\": \"ASR-1001-X\",\r\n    \"serialNumber\": \"POSTMAN-RTR-001\",\r\n    \"managementIp\": \"192.168.1.20\",\r\n    \"softwareVersion\": \"17.9.5\",\r\n    \"status\": \"MAINTENANCE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/routers/{{routerId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "routers",
+                "{{routerId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Patch Router",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"siteId\");\r\n    pm.expect(json).to.have.property(\"hostname\");\r\n    pm.expect(json).to.have.property(\"vendor\");\r\n    pm.expect(json).to.have.property(\"model\");\r\n    pm.expect(json).to.have.property(\"serialNumber\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n});\r\n\r\npm.test(\"Field types are correct\", function () {\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.siteId).to.be.a(\"number\");\r\n    pm.expect(json.hostname).to.be.a(\"string\");\r\n    pm.expect(json.vendor).to.be.a(\"string\");\r\n    pm.expect(json.model).to.be.a(\"string\");\r\n    pm.expect(json.serialNumber).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Router was partially updated correctly\", function () {\r\n    pm.expect(json.id).to.eql(Number(pm.environment.get(\"routerId\")));\r\n    pm.expect(json.model).to.eql(\"ASR-1001-Y\");\r\n    pm.expect(json.managementIp).to.eql(\"192.168.1.30\");\r\n    pm.expect(json.status).to.eql(\"IN_SERVICE\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"model\": \"ASR-1001-Y\",\r\n    \"managementIp\": \"192.168.1.30\",\r\n    \"status\": \"IN_SERVICE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/routers/{{routerId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "routers",
+                "{{routerId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Router",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {\r\n    pm.response.to.have.status(204);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Response body is empty\", function () {\r\n    pm.expect(pm.response.text()).to.eql(\"\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/routers/{{routerId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "routers",
+                "{{routerId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Duplicate Router Serial Number",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 409\", function () {\r\n    pm.response.to.have.status(409);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Error response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"timestamp\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n    pm.expect(json).to.have.property(\"error\");\r\n    pm.expect(json).to.have.property(\"message\");\r\n    pm.expect(json).to.have.property(\"path\");\r\n});\r\n\r\npm.test(\"Error response field types are correct\", function () {\r\n    pm.expect(json.timestamp).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"number\");\r\n    pm.expect(json.error).to.be.a(\"string\");\r\n    pm.expect(json.message).to.be.a(\"string\");\r\n    pm.expect(json.path).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Error status is 409\", function () {\r\n    pm.expect(json.status).to.eql(409);\r\n});\r\n\r\npm.test(\"Error message indicates duplicate router data\", function () {\r\n    pm.expect(json.message.toLowerCase())\r\n        .to.include(\"already exists\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"siteId\": {{siteId}},\r\n    \"hostname\": \"postman-router-duplicate-test\",\r\n    \"vendor\": \"Cisco\",\r\n    \"model\": \"ASR-1001\",\r\n    \"serialNumber\": \"POSTMAN-RTR-001\",\r\n    \"managementIp\": \"192.168.1.99\",\r\n    \"softwareVersion\": \"17.9.4\",\r\n    \"status\": \"IN_SERVICE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/routers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "routers"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Router - Non-existent Site",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains error fields\", function () {\r\n    pm.expect(json).to.have.property(\"timestamp\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n    pm.expect(json).to.have.property(\"error\");\r\n    pm.expect(json).to.have.property(\"message\");\r\n    pm.expect(json).to.have.property(\"path\");\r\n});\r\n\r\npm.test(\"Error field types are correct\", function () {\r\n    pm.expect(json.timestamp).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"number\");\r\n    pm.expect(json.error).to.be.a(\"string\");\r\n    pm.expect(json.message).to.be.a(\"string\");\r\n    pm.expect(json.path).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Error status is 404\", function () {\r\n    pm.expect(json.status).to.eql(404);\r\n});\r\n\r\npm.test(\"Error message indicates site was not found\", function () {\r\n    pm.expect(json.message.toLowerCase())\r\n        .to.include(\"site\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"siteId\": 999999,\r\n    \"hostname\": \"postman-router-invalid-site\",\r\n    \"vendor\": \"Cisco\",\r\n    \"model\": \"ASR-1001\",\r\n    \"serialNumber\": \"POSTMAN-RTR-INVALID-SITE\",\r\n    \"managementIp\": \"192.168.1.98\",\r\n    \"softwareVersion\": \"17.9.4\",\r\n    \"status\": \"IN_SERVICE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/routers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "routers"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Shelves",
+      "item": [
+        {
+          "name": "Create Shelf",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"routerId\");\r\n    pm.expect(json).to.have.property(\"shelfNumber\");\r\n    pm.expect(json).to.have.property(\"shelfType\");\r\n    pm.expect(json).to.have.property(\"totalSlots\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n});\r\n\r\npm.test(\"Field types are correct\", function () {\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.routerId).to.be.a(\"number\");\r\n    pm.expect(json.shelfNumber).to.be.a(\"number\");\r\n    pm.expect(json.shelfType).to.be.a(\"string\");\r\n    pm.expect(json.totalSlots).to.be.a(\"number\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Shelf was created with expected values\", function () {\r\n    pm.expect(json.routerId).to.eql(Number(pm.environment.get(\"routerId\")));\r\n    pm.expect(json.shelfNumber).to.eql(1);\r\n    pm.expect(json.shelfType).to.eql(\"STANDARD\");\r\n    pm.expect(json.totalSlots).to.eql(8);\r\n    pm.expect(json.status).to.eql(\"IN_SERVICE\");\r\n});\r\n\r\npm.environment.set(\"shelfId\", json.id);"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const shelfSerial = \"POSTMAN-SHELF-\" + Date.now();\r\n\r\npm.environment.set(\"testShelfSerial\", shelfSerial);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"routerId\": {{routerId}},\r\n    \"shelfNumber\": 1,\r\n    \"shelfType\": \"STANDARD\",\r\n    \"serialNumber\": \"{{testShelfSerial}}\",\r\n    \"totalSlots\": 8,\r\n    \"status\": \"IN_SERVICE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/shelves",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "shelves"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Shelf",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"routerId\");\r\n    pm.expect(json).to.have.property(\"shelfNumber\");\r\n    pm.expect(json).to.have.property(\"shelfType\");\r\n    pm.expect(json).to.have.property(\"totalSlots\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n});\r\n\r\npm.test(\"Field types are correct\", function () {\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.routerId).to.be.a(\"number\");\r\n    pm.expect(json.shelfNumber).to.be.a(\"number\");\r\n    pm.expect(json.shelfType).to.be.a(\"string\");\r\n    pm.expect(json.totalSlots).to.be.a(\"number\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Correct shelf is returned\", function () {\r\n    pm.expect(json.id).to.eql(Number(pm.environment.get(\"shelfId\")));\r\n    pm.expect(json.routerId).to.eql(Number(pm.environment.get(\"routerId\")));\r\n    pm.expect(json.shelfNumber).to.eql(1);\r\n    pm.expect(json.shelfType).to.eql(\"STANDARD\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/shelves/{{shelfId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "shelves",
+                "{{shelfId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Shelves",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains pagination fields\", function () {\r\n    pm.expect(json).to.have.property(\"items\");\r\n    pm.expect(json).to.have.property(\"page\");\r\n    pm.expect(json).to.have.property(\"size\");\r\n    pm.expect(json).to.have.property(\"totalElements\");\r\n    pm.expect(json).to.have.property(\"totalPages\");\r\n});\r\n\r\npm.test(\"Pagination fields have correct types\", function () {\r\n    pm.expect(json.items).to.be.an(\"array\");\r\n    pm.expect(json.page).to.be.a(\"number\");\r\n    pm.expect(json.size).to.be.a(\"number\");\r\n    pm.expect(json.totalElements).to.be.a(\"number\");\r\n    pm.expect(json.totalPages).to.be.a(\"number\");\r\n});\r\n\r\npm.test(\"Pagination values are correct\", function () {\r\n    pm.expect(json.page).to.eql(0);\r\n    pm.expect(json.size).to.eql(20);\r\n});\r\n\r\npm.test(\"Shelf items have required fields\", function () {\r\n    json.items.forEach(function (shelf) {\r\n        pm.expect(shelf).to.have.property(\"id\");\r\n        pm.expect(shelf).to.have.property(\"routerId\");\r\n        pm.expect(shelf).to.have.property(\"shelfNumber\");\r\n        pm.expect(shelf).to.have.property(\"shelfType\");\r\n        pm.expect(shelf).to.have.property(\"totalSlots\");\r\n        pm.expect(shelf).to.have.property(\"status\");\r\n    });\r\n});\r\n\r\npm.test(\"Shelf item field types are correct\", function () {\r\n    json.items.forEach(function (shelf) {\r\n        pm.expect(shelf.id).to.be.a(\"number\");\r\n        pm.expect(shelf.routerId).to.be.a(\"number\");\r\n        pm.expect(shelf.shelfNumber).to.be.a(\"number\");\r\n        pm.expect(shelf.shelfType).to.be.a(\"string\");\r\n        pm.expect(shelf.totalSlots).to.be.a(\"number\");\r\n        pm.expect(shelf.status).to.be.a(\"string\");\r\n    });\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/shelves?page=0&size=20&sort=id,asc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "shelves"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                },
+                {
+                  "key": "sort",
+                  "value": "id,asc"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Shelf",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"routerId\");\r\n    pm.expect(json).to.have.property(\"shelfNumber\");\r\n    pm.expect(json).to.have.property(\"shelfType\");\r\n    pm.expect(json).to.have.property(\"totalSlots\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n});\r\n\r\npm.test(\"Field types are correct\", function () {\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.routerId).to.be.a(\"number\");\r\n    pm.expect(json.shelfNumber).to.be.a(\"number\");\r\n    pm.expect(json.shelfType).to.be.a(\"string\");\r\n    pm.expect(json.totalSlots).to.be.a(\"number\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Shelf was updated correctly\", function () {\r\n    pm.expect(json.id).to.eql(Number(pm.environment.get(\"shelfId\")));\r\n    pm.expect(json.routerId).to.eql(Number(pm.environment.get(\"routerId\")));\r\n    pm.expect(json.shelfNumber).to.eql(1);\r\n    pm.expect(json.shelfType).to.eql(\"STANDARD\");\r\n    pm.expect(json.totalSlots).to.eql(8);\r\n    pm.expect(json.status).to.eql(\"IN_SERVICE\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"routerId\": {{routerId}},\r\n    \"shelfNumber\": 1,\r\n    \"shelfType\": \"STANDARD\",\r\n    \"serialNumber\": \"POSTMAN-SHELF-001\",\r\n    \"totalSlots\": 8,\r\n    \"status\": \"IN_SERVICE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/shelves/{{shelfId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "shelves",
+                "{{shelfId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Patch Shelf",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"routerId\");\r\n    pm.expect(json).to.have.property(\"shelfNumber\");\r\n    pm.expect(json).to.have.property(\"shelfType\");\r\n    pm.expect(json).to.have.property(\"totalSlots\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n});\r\n\r\npm.test(\"Field types are correct\", function () {\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.routerId).to.be.a(\"number\");\r\n    pm.expect(json.shelfNumber).to.be.a(\"number\");\r\n    pm.expect(json.shelfType).to.be.a(\"string\");\r\n    pm.expect(json.totalSlots).to.be.a(\"number\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Shelf was partially updated correctly\", function () {\r\n    pm.expect(json.id).to.eql(Number(pm.environment.get(\"shelfId\")));\r\n    pm.expect(json.shelfType).to.eql(\"EXPANSION\");\r\n    pm.expect(json.status).to.eql(\"MAINTENANCE\");\r\n});\r\n\r\npm.test(\"Unchanged fields were preserved\", function () {\r\n    pm.expect(json.routerId).to.eql(Number(pm.environment.get(\"routerId\")));\r\n    pm.expect(json.shelfNumber).to.eql(1);\r\n    pm.expect(json.totalSlots).to.eql(8);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"shelfType\": \"EXPANSION\",\r\n    \"status\": \"MAINTENANCE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/shelves/{{shelfId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "shelves",
+                "{{shelfId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "DeleteShelf",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {\r\n    pm.response.to.have.status(204);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Response body is empty\", function () {\r\n    pm.expect(pm.response.text()).to.eql(\"\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/shelves/{{shelfId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "shelves",
+                "{{shelfId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Slots",
+      "item": [
+        {
+          "name": "Create Slot",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"shelfId\");\r\n    pm.expect(json).to.have.property(\"slotNumber\");\r\n    pm.expect(json).to.have.property(\"slotType\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n});\r\n\r\npm.test(\"Field types are correct\", function () {\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.shelfId).to.be.a(\"number\");\r\n    pm.expect(json.slotNumber).to.be.a(\"number\");\r\n    pm.expect(json.slotType).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Slot was created with expected values\", function () {\r\n    pm.expect(json.shelfId).to.eql(Number(pm.environment.get(\"shelfId\")));\r\n    pm.expect(json.slotNumber).to.eql(1);\r\n    pm.expect(json.slotType).to.eql(\"LINE\");\r\n    pm.expect(json.status).to.eql(\"EMPTY\");\r\n});\r\n\r\npm.environment.set(\"slotId\", json.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"shelfId\": {{shelfId}},\r\n    \"slotNumber\": 1,\r\n    \"slotType\": \"LINE\",\r\n    \"status\": \"EMPTY\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/slots",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "slots"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Slot",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"shelfId\");\r\n    pm.expect(json).to.have.property(\"slotNumber\");\r\n    pm.expect(json).to.have.property(\"slotType\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n});\r\n\r\npm.test(\"Field types are correct\", function () {\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.shelfId).to.be.a(\"number\");\r\n    pm.expect(json.slotNumber).to.be.a(\"number\");\r\n    pm.expect(json.slotType).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Correct slot is returned\", function () {\r\n    pm.expect(json.id).to.eql(Number(pm.environment.get(\"slotId\")));\r\n    pm.expect(json.shelfId).to.eql(Number(pm.environment.get(\"shelfId\")));\r\n    pm.expect(json.slotNumber).to.eql(1);\r\n    pm.expect(json.slotType).to.eql(\"LINE\");\r\n    pm.expect(json.status).to.eql(\"EMPTY\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/slots/{{slotId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "slots",
+                "{{slotId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Slots",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains pagination fields\", function () {\r\n    pm.expect(json).to.have.property(\"items\");\r\n    pm.expect(json).to.have.property(\"page\");\r\n    pm.expect(json).to.have.property(\"size\");\r\n    pm.expect(json).to.have.property(\"totalElements\");\r\n    pm.expect(json).to.have.property(\"totalPages\");\r\n});\r\n\r\npm.test(\"Pagination fields have correct types\", function () {\r\n    pm.expect(json.items).to.be.an(\"array\");\r\n    pm.expect(json.page).to.be.a(\"number\");\r\n    pm.expect(json.size).to.be.a(\"number\");\r\n    pm.expect(json.totalElements).to.be.a(\"number\");\r\n    pm.expect(json.totalPages).to.be.a(\"number\");\r\n});\r\n\r\npm.test(\"Pagination values are correct\", function () {\r\n    pm.expect(json.page).to.eql(0);\r\n    pm.expect(json.size).to.eql(20);\r\n});\r\n\r\npm.test(\"Slot items have required fields\", function () {\r\n    json.items.forEach(function (slot) {\r\n        pm.expect(slot).to.have.property(\"id\");\r\n        pm.expect(slot).to.have.property(\"shelfId\");\r\n        pm.expect(slot).to.have.property(\"slotNumber\");\r\n        pm.expect(slot).to.have.property(\"slotType\");\r\n        pm.expect(slot).to.have.property(\"status\");\r\n    });\r\n});\r\n\r\npm.test(\"Slot item field types are correct\", function () {\r\n    json.items.forEach(function (slot) {\r\n        pm.expect(slot.id).to.be.a(\"number\");\r\n        pm.expect(slot.shelfId).to.be.a(\"number\");\r\n        pm.expect(slot.slotNumber).to.be.a(\"number\");\r\n        pm.expect(slot.slotType).to.be.a(\"string\");\r\n        pm.expect(slot.status).to.be.a(\"string\");\r\n    });\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/slots?page=0&size=20&sort=id,asc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "slots"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                },
+                {
+                  "key": "sort",
+                  "value": "id,asc"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Slot",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"shelfId\");\r\n    pm.expect(json).to.have.property(\"slotNumber\");\r\n    pm.expect(json).to.have.property(\"slotType\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n});\r\n\r\npm.test(\"Field types are correct\", function () {\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.shelfId).to.be.a(\"number\");\r\n    pm.expect(json.slotNumber).to.be.a(\"number\");\r\n    pm.expect(json.slotType).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Slot was updated correctly\", function () {\r\n    pm.expect(json.id).to.eql(Number(pm.environment.get(\"slotId\")));\r\n    pm.expect(json.shelfId).to.eql(Number(pm.environment.get(\"shelfId\")));\r\n    pm.expect(json.slotNumber).to.eql(1);\r\n    pm.expect(json.slotType).to.eql(\"CONTROL\");\r\n    pm.expect(json.status).to.eql(\"RESERVED\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"shelfId\": {{shelfId}},\r\n    \"slotNumber\": 1,\r\n    \"slotType\": \"CONTROL\",\r\n    \"status\": \"RESERVED\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/slots/{{slotId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "slots",
+                "{{slotId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Patch Slot",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"shelfId\");\r\n    pm.expect(json).to.have.property(\"slotNumber\");\r\n    pm.expect(json).to.have.property(\"slotType\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n});\r\n\r\npm.test(\"Field types are correct\", function () {\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.shelfId).to.be.a(\"number\");\r\n    pm.expect(json.slotNumber).to.be.a(\"number\");\r\n    pm.expect(json.slotType).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Slot was partially updated correctly\", function () {\r\n    pm.expect(json.id).to.eql(Number(pm.environment.get(\"slotId\")));\r\n    pm.expect(json.slotType).to.eql(\"POWER\");\r\n    pm.expect(json.status).to.eql(\"EMPTY\");\r\n});\r\n\r\npm.test(\"Unchanged fields were preserved\", function () {\r\n    pm.expect(json.shelfId).to.eql(Number(pm.environment.get(\"shelfId\")));\r\n    pm.expect(json.slotNumber).to.eql(1);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"slotType\": \"POWER\",\r\n    \"status\": \"EMPTY\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/slots/{{slotId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "slots",
+                "{{slotId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Slot",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {\r\n    pm.response.to.have.status(204);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Response body is empty\", function () {\r\n    pm.expect(pm.response.text()).to.eql(\"\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/slots/{{slotId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "slots",
+                "{{slotId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cards",
+      "item": [
+        {
+          "name": "Create Card",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"slotId\");\r\n    pm.expect(json).to.have.property(\"partNumber\");\r\n    pm.expect(json).to.have.property(\"serialNumber\");\r\n    pm.expect(json).to.have.property(\"cardType\");\r\n    pm.expect(json).to.have.property(\"portCount\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n});\r\n\r\npm.test(\"Field types are correct\", function () {\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.partNumber).to.be.a(\"string\");\r\n    pm.expect(json.serialNumber).to.be.a(\"string\");\r\n    pm.expect(json.cardType).to.be.a(\"string\");\r\n    pm.expect(json.portCount).to.be.a(\"number\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Card was created without a slot\", function () {\r\n    pm.expect(json.slotId).to.be.null;\r\n    pm.expect(json.partNumber).to.eql(\"POSTMAN-CARD-001\");\r\n    pm.expect(json.serialNumber).to.eql(\"POSTMAN-CARD-SN-001\");\r\n    pm.expect(json.cardType).to.eql(\"LINE_CARD\");\r\n    pm.expect(json.portCount).to.eql(24);\r\n    pm.expect(json.hardwareRevision).to.eql(\"REV-A\");\r\n    pm.expect(json.status).to.eql(\"IN_STOCK\");\r\n});\r\n\r\npm.environment.set(\"cardId\", json.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"slotId\": null,\r\n    \"partNumber\": \"POSTMAN-CARD-001\",\r\n    \"serialNumber\": \"POSTMAN-CARD-SN-001\",\r\n    \"cardType\": \"LINE_CARD\",\r\n    \"portCount\": 24,\r\n    \"hardwareRevision\": \"REV-A\",\r\n    \"status\": \"IN_STOCK\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cards",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cards"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Card",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"slotId\");\r\n    pm.expect(json).to.have.property(\"partNumber\");\r\n    pm.expect(json).to.have.property(\"serialNumber\");\r\n    pm.expect(json).to.have.property(\"cardType\");\r\n    pm.expect(json).to.have.property(\"portCount\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n});\r\n\r\npm.test(\"Field types are correct\", function () {\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.slotId).to.be.a(\"number\");\r\n    pm.expect(json.partNumber).to.be.a(\"string\");\r\n    pm.expect(json.serialNumber).to.be.a(\"string\");\r\n    pm.expect(json.cardType).to.be.a(\"string\");\r\n    pm.expect(json.portCount).to.be.a(\"number\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Correct card was returned\", function () {\r\n    pm.expect(json.id).to.eql(\r\n        Number(pm.environment.get(\"cardId\"))\r\n    );\r\n    pm.expect(json.slotId).to.eql(\r\n        Number(pm.environment.get(\"slotId\"))\r\n    );\r\n    pm.expect(json.serialNumber).to.eql(\"POSTMAN-CARD-SN-001\");\r\n    pm.expect(json.status).to.eql(\"INSTALLED\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cards/{{cardId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cards",
+                "{{cardId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Cards",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains pagination fields\", function () {\r\n    pm.expect(json).to.have.property(\"items\");\r\n    pm.expect(json).to.have.property(\"page\");\r\n    pm.expect(json).to.have.property(\"size\");\r\n    pm.expect(json).to.have.property(\"totalElements\");\r\n    pm.expect(json).to.have.property(\"totalPages\");\r\n});\r\n\r\npm.test(\"Pagination field types are correct\", function () {\r\n    pm.expect(json.items).to.be.an(\"array\");\r\n    pm.expect(json.page).to.be.a(\"number\");\r\n    pm.expect(json.size).to.be.a(\"number\");\r\n    pm.expect(json.totalElements).to.be.a(\"number\");\r\n    pm.expect(json.totalPages).to.be.a(\"number\");\r\n});\r\n\r\npm.test(\"Pagination values are correct\", function () {\r\n    pm.expect(json.page).to.eql(0);\r\n    pm.expect(json.size).to.eql(20);\r\n    pm.expect(json.totalElements).to.be.at.least(1);\r\n});\r\n\r\npm.test(\"Card items contain required fields\", function () {\r\n    json.items.forEach(function (card) {\r\n        pm.expect(card).to.have.property(\"id\");\r\n        pm.expect(card).to.have.property(\"slotId\");\r\n        pm.expect(card).to.have.property(\"partNumber\");\r\n        pm.expect(card).to.have.property(\"serialNumber\");\r\n        pm.expect(card).to.have.property(\"cardType\");\r\n        pm.expect(card).to.have.property(\"portCount\");\r\n        pm.expect(card).to.have.property(\"status\");\r\n\r\n        pm.expect(card.id).to.be.a(\"number\");\r\n        pm.expect(card.partNumber).to.be.a(\"string\");\r\n        pm.expect(card.serialNumber).to.be.a(\"string\");\r\n        pm.expect(card.cardType).to.be.a(\"string\");\r\n        pm.expect(card.portCount).to.be.a(\"number\");\r\n        pm.expect(card.status).to.be.a(\"string\");\r\n    });\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cards?page=0&size=20&sort=id,asc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cards"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                },
+                {
+                  "key": "sort",
+                  "value": "id,asc"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Card",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"slotId\");\r\n    pm.expect(json).to.have.property(\"partNumber\");\r\n    pm.expect(json).to.have.property(\"serialNumber\");\r\n    pm.expect(json).to.have.property(\"cardType\");\r\n    pm.expect(json).to.have.property(\"portCount\");\r\n    pm.expect(json).to.have.property(\"hardwareRevision\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n});\r\n\r\npm.test(\"Field types are correct\", function () {\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.partNumber).to.be.a(\"string\");\r\n    pm.expect(json.serialNumber).to.be.a(\"string\");\r\n    pm.expect(json.cardType).to.be.a(\"string\");\r\n    pm.expect(json.portCount).to.be.a(\"number\");\r\n    pm.expect(json.hardwareRevision).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Card was updated with expected values\", function () {\r\n    pm.expect(json.id).to.eql(\r\n        Number(pm.environment.get(\"cardId\"))\r\n    );\r\n    pm.expect(json.slotId).to.be.null;\r\n    pm.expect(json.partNumber).to.eql(\"POSTMAN-CARD-001\");\r\n    pm.expect(json.serialNumber).to.eql(\"POSTMAN-CARD-SN-001\");\r\n    pm.expect(json.cardType).to.eql(\"LINE_CARD\");\r\n    pm.expect(json.portCount).to.eql(48);\r\n    pm.expect(json.hardwareRevision).to.eql(\"REV-B\");\r\n    pm.expect(json.status).to.eql(\"IN_STOCK\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"slotId\": null,\r\n    \"partNumber\": \"POSTMAN-CARD-001\",\r\n    \"serialNumber\": \"POSTMAN-CARD-SN-001\",\r\n    \"cardType\": \"LINE_CARD\",\r\n    \"portCount\": 48,\r\n    \"hardwareRevision\": \"REV-B\",\r\n    \"status\": \"IN_STOCK\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cards/{{cardId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cards",
+                "{{cardId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Patch Card",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"slotId\");\r\n    pm.expect(json).to.have.property(\"partNumber\");\r\n    pm.expect(json).to.have.property(\"serialNumber\");\r\n    pm.expect(json).to.have.property(\"cardType\");\r\n    pm.expect(json).to.have.property(\"portCount\");\r\n    pm.expect(json).to.have.property(\"hardwareRevision\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n});\r\n\r\npm.test(\"Field types are correct\", function () {\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.partNumber).to.be.a(\"string\");\r\n    pm.expect(json.serialNumber).to.be.a(\"string\");\r\n    pm.expect(json.cardType).to.be.a(\"string\");\r\n    pm.expect(json.portCount).to.be.a(\"number\");\r\n    pm.expect(json.hardwareRevision).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Card was patched with expected values\", function () {\r\n    pm.expect(json.id).to.eql(\r\n        Number(pm.environment.get(\"cardId\"))\r\n    );\r\n    pm.expect(json.slotId).to.be.null;\r\n    pm.expect(json.partNumber).to.eql(\"POSTMAN-CARD-001\");\r\n    pm.expect(json.serialNumber).to.eql(\"POSTMAN-CARD-SN-001\");\r\n    pm.expect(json.cardType).to.eql(\"LINE_CARD\");\r\n    pm.expect(json.portCount).to.eql(32);\r\n    pm.expect(json.hardwareRevision).to.eql(\"REV-C\");\r\n    pm.expect(json.status).to.eql(\"IN_STOCK\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"portCount\": 32,\r\n    \"hardwareRevision\": \"REV-C\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cards/{{cardId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cards",
+                "{{cardId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Card",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {\r\n    pm.response.to.have.status(204);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Response body is empty\", function () {\r\n    pm.expect(pm.response.text()).to.eql(\"\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cards/{{cardId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cards",
+                "{{cardId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Hierarchy",
+      "item": [
+        {
+          "name": "Get Site Routers",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response is an array\", function () {\r\n    pm.expect(json).to.be.an(\"array\");\r\n});\r\n\r\npm.test(\"Routers contain required fields\", function () {\r\n    json.forEach(function (router) {\r\n        pm.expect(router).to.have.property(\"id\");\r\n        pm.expect(router).to.have.property(\"siteId\");\r\n        pm.expect(router).to.have.property(\"hostname\");\r\n        pm.expect(router).to.have.property(\"serialNumber\");\r\n        pm.expect(router).to.have.property(\"status\");\r\n\r\n        pm.expect(router.id).to.be.a(\"number\");\r\n        pm.expect(router.siteId).to.be.a(\"number\");\r\n        pm.expect(router.hostname).to.be.a(\"string\");\r\n        pm.expect(router.serialNumber).to.be.a(\"string\");\r\n        pm.expect(router.status).to.be.a(\"string\");\r\n    });\r\n});\r\n\r\npm.test(\"Routers belong to current site\", function () {\r\n    const siteId = Number(pm.environment.get(\"siteId\"));\r\n\r\n    json.forEach(function (router) {\r\n        pm.expect(router.siteId).to.eql(siteId);\r\n    });\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sites/{{siteId}}/routers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sites",
+                "{{siteId}}",
+                "routers"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Router Shelves",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response is an array\", function () {\r\n    pm.expect(json).to.be.an(\"array\");\r\n});\r\n\r\npm.test(\"Shelves contain required fields\", function () {\r\n    json.forEach(function (shelf) {\r\n        pm.expect(shelf).to.have.property(\"id\");\r\n        pm.expect(shelf).to.have.property(\"routerId\");\r\n        pm.expect(shelf).to.have.property(\"shelfNumber\");\r\n        pm.expect(shelf).to.have.property(\"shelfType\");\r\n        pm.expect(shelf).to.have.property(\"totalSlots\");\r\n        pm.expect(shelf).to.have.property(\"status\");\r\n\r\n        pm.expect(shelf.id).to.be.a(\"number\");\r\n        pm.expect(shelf.routerId).to.be.a(\"number\");\r\n        pm.expect(shelf.shelfNumber).to.be.a(\"number\");\r\n        pm.expect(shelf.shelfType).to.be.a(\"string\");\r\n        pm.expect(shelf.totalSlots).to.be.a(\"number\");\r\n        pm.expect(shelf.status).to.be.a(\"string\");\r\n    });\r\n});\r\n\r\npm.test(\"Shelves belong to current router\", function () {\r\n    const routerId = Number(pm.environment.get(\"routerId\"));\r\n\r\n    json.forEach(function (shelf) {\r\n        pm.expect(shelf.routerId).to.eql(routerId);\r\n    });\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/routers/{{routerId}}/shelves",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "routers",
+                "{{routerId}}",
+                "shelves"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Shelf Slots",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response is an array\", function () {\r\n    pm.expect(json).to.be.an(\"array\");\r\n});\r\n\r\npm.test(\"Slots contain required fields\", function () {\r\n    json.forEach(function (slot) {\r\n        pm.expect(slot).to.have.property(\"id\");\r\n        pm.expect(slot).to.have.property(\"shelfId\");\r\n        pm.expect(slot).to.have.property(\"slotNumber\");\r\n        pm.expect(slot).to.have.property(\"slotType\");\r\n        pm.expect(slot).to.have.property(\"status\");\r\n\r\n        pm.expect(slot.id).to.be.a(\"number\");\r\n        pm.expect(slot.shelfId).to.be.a(\"number\");\r\n        pm.expect(slot.slotNumber).to.be.a(\"number\");\r\n        pm.expect(slot.slotType).to.be.a(\"string\");\r\n        pm.expect(slot.status).to.be.a(\"string\");\r\n    });\r\n});\r\n\r\npm.test(\"Slots belong to current shelf\", function () {\r\n    const shelfId = Number(pm.environment.get(\"shelfId\"));\r\n\r\n    json.forEach(function (slot) {\r\n        pm.expect(slot.shelfId).to.eql(shelfId);\r\n    });\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/shelves/{{shelfId}}/slots",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "shelves",
+                "{{shelfId}}",
+                "slots"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Slot Card",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {\r\n    pm.response.to.have.status(404);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Error response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"timestamp\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n    pm.expect(json).to.have.property(\"error\");\r\n    pm.expect(json).to.have.property(\"message\");\r\n    pm.expect(json).to.have.property(\"path\");\r\n});\r\n\r\npm.test(\"Error response field types are correct\", function () {\r\n    pm.expect(json.timestamp).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"number\");\r\n    pm.expect(json.error).to.be.a(\"string\");\r\n    pm.expect(json.message).to.be.a(\"string\");\r\n    pm.expect(json.path).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Error status is 404\", function () {\r\n    pm.expect(json.status).to.eql(404);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/slots/{{slotId}}/card",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "slots",
+                "{{slotId}}",
+                "card"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Router Tree",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Router tree contains router fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"siteId\");\r\n    pm.expect(json).to.have.property(\"hostname\");\r\n    pm.expect(json).to.have.property(\"serialNumber\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.siteId).to.be.a(\"number\");\r\n    pm.expect(json.hostname).to.be.a(\"string\");\r\n    pm.expect(json.serialNumber).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Router tree contains shelves\", function () {\r\n    pm.expect(json).to.have.property(\"shelves\");\r\n    pm.expect(json.shelves).to.be.an(\"array\");\r\n});\r\n\r\npm.test(\"Router tree belongs to current router\", function () {\r\n    pm.expect(json.id).to.eql(\r\n        Number(pm.environment.get(\"routerId\"))\r\n    );\r\n});\r\n\r\npm.test(\"Shelves contain slots\", function () {\r\n    json.shelves.forEach(function (shelf) {\r\n        pm.expect(shelf).to.have.property(\"id\");\r\n        pm.expect(shelf).to.have.property(\"routerId\");\r\n        pm.expect(shelf).to.have.property(\"shelfNumber\");\r\n\r\n        pm.expect(shelf.id).to.be.a(\"number\");\r\n        pm.expect(shelf.routerId).to.be.a(\"number\");\r\n        pm.expect(shelf.shelfNumber).to.be.a(\"number\");\r\n\r\n        pm.expect(shelf).to.have.property(\"slots\");\r\n        pm.expect(shelf.slots).to.be.an(\"array\");\r\n    });\r\n});\r\n\r\npm.test(\"Slots contain expected fields\", function () {\r\n    json.shelves.forEach(function (shelf) {\r\n        shelf.slots.forEach(function (slot) {\r\n            pm.expect(slot).to.have.property(\"id\");\r\n            pm.expect(slot).to.have.property(\"shelfId\");\r\n            pm.expect(slot).to.have.property(\"slotNumber\");\r\n            pm.expect(slot).to.have.property(\"slotType\");\r\n            pm.expect(slot).to.have.property(\"status\");\r\n\r\n            pm.expect(slot.id).to.be.a(\"number\");\r\n            pm.expect(slot.shelfId).to.be.a(\"number\");\r\n            pm.expect(slot.slotNumber).to.be.a(\"number\");\r\n            pm.expect(slot.slotType).to.be.a(\"string\");\r\n            pm.expect(slot.status).to.be.a(\"string\");\r\n        });\r\n    });\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/routers/{{routerId}}/tree",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "routers",
+                "{{routerId}}",
+                "tree"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Install Card into Slot",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"slotId\");\r\n    pm.expect(json).to.have.property(\"partNumber\");\r\n    pm.expect(json).to.have.property(\"serialNumber\");\r\n    pm.expect(json).to.have.property(\"cardType\");\r\n    pm.expect(json).to.have.property(\"portCount\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n});\r\n\r\npm.test(\"Field types are correct\", function () {\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.slotId).to.be.a(\"number\");\r\n    pm.expect(json.partNumber).to.be.a(\"string\");\r\n    pm.expect(json.serialNumber).to.be.a(\"string\");\r\n    pm.expect(json.cardType).to.be.a(\"string\");\r\n    pm.expect(json.portCount).to.be.a(\"number\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Card was installed in the current slot\", function () {\r\n    pm.expect(json.slotId).to.eql(\r\n        Number(pm.environment.get(\"slotId\"))\r\n    );\r\n    pm.expect(json.partNumber)\r\n        .to.eql(pm.environment.get(\"testCardPartNumber\"));\r\n    pm.expect(json.serialNumber)\r\n        .to.eql(pm.environment.get(\"testCardSerial\"));\r\n    pm.expect(json.cardType).to.eql(\"LINE_CARD\");\r\n    pm.expect(json.portCount).to.eql(24);\r\n    pm.expect(json.status).to.eql(\"INSTALLED\");\r\n});\r\n\r\npm.environment.set(\"cardId\", json.id);"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const cardSuffix = Date.now();\r\n\r\npm.environment.set(\"testCardPartNumber\", \"POSTMAN-CARD-\" + cardSuffix);\r\npm.environment.set(\"testCardSerial\", \"POSTMAN-CARD-SN-\" + cardSuffix);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"partNumber\": \"{{testCardPartNumber}}\",\r\n    \"serialNumber\": \"{{testCardSerial}}\",\r\n    \"cardType\": \"LINE_CARD\",\r\n    \"portCount\": 24,\r\n    \"hardwareRevision\": \"REV-A\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/slots/{{slotId}}/card",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "slots",
+                "{{slotId}}",
+                "card"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Install Card into occupied Slot",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 409\", function () {\r\n    pm.response.to.have.status(409);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Error response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"timestamp\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n    pm.expect(json).to.have.property(\"error\");\r\n    pm.expect(json).to.have.property(\"message\");\r\n    pm.expect(json).to.have.property(\"path\");\r\n});\r\n\r\npm.test(\"Error response field types are correct\", function () {\r\n    pm.expect(json.timestamp).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"number\");\r\n    pm.expect(json.error).to.be.a(\"string\");\r\n    pm.expect(json.message).to.be.a(\"string\");\r\n    pm.expect(json.path).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Error status is 409\", function () {\r\n    pm.expect(json.status).to.eql(409);\r\n});\r\n\r\npm.test(\"Error message indicates slot already has a card\", function () {\r\n    pm.expect(json.message.toLowerCase())\r\n        .to.include(\"already has a card\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"partNumber\": \"POSTMAN-CARD-003\",\r\n    \"serialNumber\": \"POSTMAN-CARD-SN-003\",\r\n    \"cardType\": \"LINE_CARD\",\r\n    \"portCount\": 24,\r\n    \"hardwareRevision\": \"REV-A\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/slots/{{slotId}}/card",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "slots",
+                "{{slotId}}",
+                "card"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Card from Slot",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {\r\n    pm.response.to.have.status(204);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Response body is empty\", function () {\r\n    pm.expect(pm.response.text()).to.eql(\"\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/slots/{{slotId}}/card",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "slots",
+                "{{slotId}}",
+                "card"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Scenario (E2E)",
+      "item": [
+        {
+          "name": "01 Create Site",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"siteCode\");\r\n    pm.expect(json).to.have.property(\"name\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n});\r\n\r\npm.test(\"Field types are correct\", function () {\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.siteCode).to.be.a(\"string\");\r\n    pm.expect(json.name).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Created site has expected values\", function () {\r\n    pm.expect(json.siteCode)\r\n        .to.eql(pm.environment.get(\"testSiteCode\"));\r\n    pm.expect(json.name).to.eql(\"Postman Test Site\");\r\n    pm.expect(json.status).to.eql(\"ACTIVE\");\r\n});\r\n\r\npm.environment.set(\"siteId\", json.id);"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const siteCode = \"PS-\" + Date.now().toString().slice(-8);\r\n\r\npm.environment.set(\"testSiteCode\", siteCode);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"siteCode\": \"{{testSiteCode}}\",\r\n    \"name\": \"Postman Test Site\",\r\n    \"address\": \"Test Address 1\",\r\n    \"city\": \"Sofia\",\r\n    \"countryCode\": \"BG\",\r\n    \"latitude\": 42.6977,\r\n    \"longitude\": 23.3219,\r\n    \"status\": \"ACTIVE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sites",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sites"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02 Create Router",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"siteId\");\r\n    pm.expect(json).to.have.property(\"hostname\");\r\n    pm.expect(json).to.have.property(\"vendor\");\r\n    pm.expect(json).to.have.property(\"model\");\r\n    pm.expect(json).to.have.property(\"serialNumber\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n});\r\n\r\npm.test(\"Field types are correct\", function () {\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.siteId).to.be.a(\"number\");\r\n    pm.expect(json.hostname).to.be.a(\"string\");\r\n    pm.expect(json.vendor).to.be.a(\"string\");\r\n    pm.expect(json.model).to.be.a(\"string\");\r\n    pm.expect(json.serialNumber).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Router was created with expected values\", function () {\r\n    pm.expect(json.siteId).to.eql(Number(pm.environment.get(\"siteId\")));\r\n    pm.expect(json.hostname)\r\n        .to.eql(pm.environment.get(\"testRouterHostname\"));\r\n    pm.expect(json.serialNumber)\r\n        .to.eql(pm.environment.get(\"testRouterSerial\"));\r\n    pm.expect(json.status).to.eql(\"IN_SERVICE\");\r\n});\r\n\r\npm.environment.set(\"routerId\", json.id);"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const routerSuffix = Date.now();\r\n\r\npm.environment.set(\"testRouterHostname\", \"postman-router-\" + routerSuffix);\r\npm.environment.set(\"testRouterSerial\", \"POSTMAN-RTR-\" + routerSuffix);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"siteId\": {{siteId}},\r\n    \"hostname\": \"{{testRouterHostname}}\",\r\n    \"vendor\": \"Cisco\",\r\n    \"model\": \"ASR-1001\",\r\n    \"serialNumber\": \"{{testRouterSerial}}\",\r\n    \"managementIp\": \"192.168.1.10\",\r\n    \"softwareVersion\": \"17.9.4\",\r\n    \"status\": \"IN_SERVICE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/routers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "routers"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03 Create Shelf",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"routerId\");\r\n    pm.expect(json).to.have.property(\"shelfNumber\");\r\n    pm.expect(json).to.have.property(\"shelfType\");\r\n    pm.expect(json).to.have.property(\"totalSlots\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n});\r\n\r\npm.test(\"Field types are correct\", function () {\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.routerId).to.be.a(\"number\");\r\n    pm.expect(json.shelfNumber).to.be.a(\"number\");\r\n    pm.expect(json.shelfType).to.be.a(\"string\");\r\n    pm.expect(json.totalSlots).to.be.a(\"number\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Shelf was created with expected values\", function () {\r\n    pm.expect(json.routerId).to.eql(Number(pm.environment.get(\"routerId\")));\r\n    pm.expect(json.shelfNumber).to.eql(1);\r\n    pm.expect(json.shelfType).to.eql(\"STANDARD\");\r\n    pm.expect(json.totalSlots).to.eql(8);\r\n    pm.expect(json.status).to.eql(\"IN_SERVICE\");\r\n});\r\n\r\npm.environment.set(\"shelfId\", json.id);"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const shelfSerial = \"POSTMAN-SHELF-\" + Date.now();\r\n\r\npm.environment.set(\"testShelfSerial\", shelfSerial);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"routerId\": {{routerId}},\r\n    \"shelfNumber\": 1,\r\n    \"shelfType\": \"STANDARD\",\r\n    \"serialNumber\": \"{{testShelfSerial}}\",\r\n    \"totalSlots\": 8,\r\n    \"status\": \"IN_SERVICE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/shelves",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "shelves"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04 Create Slot",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"shelfId\");\r\n    pm.expect(json).to.have.property(\"slotNumber\");\r\n    pm.expect(json).to.have.property(\"slotType\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n});\r\n\r\npm.test(\"Field types are correct\", function () {\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.shelfId).to.be.a(\"number\");\r\n    pm.expect(json.slotNumber).to.be.a(\"number\");\r\n    pm.expect(json.slotType).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Slot was created with expected values\", function () {\r\n    pm.expect(json.shelfId).to.eql(Number(pm.environment.get(\"shelfId\")));\r\n    pm.expect(json.slotNumber).to.eql(1);\r\n    pm.expect(json.slotType).to.eql(\"LINE\");\r\n    pm.expect(json.status).to.eql(\"EMPTY\");\r\n});\r\n\r\npm.environment.set(\"slotId\", json.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"shelfId\": {{shelfId}},\r\n    \"slotNumber\": 1,\r\n    \"slotType\": \"LINE\",\r\n    \"status\": \"EMPTY\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/slots",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "slots"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05 Install Card into Slot",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"slotId\");\r\n    pm.expect(json).to.have.property(\"partNumber\");\r\n    pm.expect(json).to.have.property(\"serialNumber\");\r\n    pm.expect(json).to.have.property(\"cardType\");\r\n    pm.expect(json).to.have.property(\"portCount\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n});\r\n\r\npm.test(\"Field types are correct\", function () {\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.slotId).to.be.a(\"number\");\r\n    pm.expect(json.partNumber).to.be.a(\"string\");\r\n    pm.expect(json.serialNumber).to.be.a(\"string\");\r\n    pm.expect(json.cardType).to.be.a(\"string\");\r\n    pm.expect(json.portCount).to.be.a(\"number\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Card was installed in the current slot\", function () {\r\n    pm.expect(json.slotId).to.eql(\r\n        Number(pm.environment.get(\"slotId\"))\r\n    );\r\n    pm.expect(json.partNumber)\r\n        .to.eql(pm.environment.get(\"testCardPartNumber\"));\r\n    pm.expect(json.serialNumber)\r\n        .to.eql(pm.environment.get(\"testCardSerial\"));\r\n    pm.expect(json.cardType).to.eql(\"LINE_CARD\");\r\n    pm.expect(json.portCount).to.eql(24);\r\n    pm.expect(json.status).to.eql(\"INSTALLED\");\r\n});\r\n\r\npm.environment.set(\"cardId\", json.id);"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const cardSuffix = Date.now();\r\n\r\npm.environment.set(\"testCardPartNumber\", \"POSTMAN-CARD-\" + cardSuffix);\r\npm.environment.set(\"testCardSerial\", \"POSTMAN-CARD-SN-\" + cardSuffix);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"partNumber\": \"{{testCardPartNumber}}\",\r\n    \"serialNumber\": \"{{testCardSerial}}\",\r\n    \"cardType\": \"LINE_CARD\",\r\n    \"portCount\": 24,\r\n    \"hardwareRevision\": \"REV-A\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/slots/{{slotId}}/card",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "slots",
+                "{{slotId}}",
+                "card"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "06 Get Router Tree",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Router tree contains router fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"siteId\");\r\n    pm.expect(json).to.have.property(\"hostname\");\r\n    pm.expect(json).to.have.property(\"serialNumber\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.siteId).to.be.a(\"number\");\r\n    pm.expect(json.hostname).to.be.a(\"string\");\r\n    pm.expect(json.serialNumber).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Router tree contains shelves\", function () {\r\n    pm.expect(json).to.have.property(\"shelves\");\r\n    pm.expect(json.shelves).to.be.an(\"array\");\r\n});\r\n\r\npm.test(\"Router tree belongs to current router\", function () {\r\n    pm.expect(json.id).to.eql(\r\n        Number(pm.environment.get(\"routerId\"))\r\n    );\r\n});\r\n\r\npm.test(\"Shelves contain slots\", function () {\r\n    json.shelves.forEach(function (shelf) {\r\n        pm.expect(shelf).to.have.property(\"id\");\r\n        pm.expect(shelf).to.have.property(\"routerId\");\r\n        pm.expect(shelf).to.have.property(\"shelfNumber\");\r\n\r\n        pm.expect(shelf.id).to.be.a(\"number\");\r\n        pm.expect(shelf.routerId).to.be.a(\"number\");\r\n        pm.expect(shelf.shelfNumber).to.be.a(\"number\");\r\n\r\n        pm.expect(shelf).to.have.property(\"slots\");\r\n        pm.expect(shelf.slots).to.be.an(\"array\");\r\n    });\r\n});\r\n\r\npm.test(\"Slots contain expected fields\", function () {\r\n    json.shelves.forEach(function (shelf) {\r\n        shelf.slots.forEach(function (slot) {\r\n            pm.expect(slot).to.have.property(\"id\");\r\n            pm.expect(slot).to.have.property(\"shelfId\");\r\n            pm.expect(slot).to.have.property(\"slotNumber\");\r\n            pm.expect(slot).to.have.property(\"slotType\");\r\n            pm.expect(slot).to.have.property(\"status\");\r\n\r\n            pm.expect(slot.id).to.be.a(\"number\");\r\n            pm.expect(slot.shelfId).to.be.a(\"number\");\r\n            pm.expect(slot.slotNumber).to.be.a(\"number\");\r\n            pm.expect(slot.slotType).to.be.a(\"string\");\r\n            pm.expect(slot.status).to.be.a(\"string\");\r\n        });\r\n    });\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/routers/{{routerId}}/tree",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "routers",
+                "{{routerId}}",
+                "tree"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "07 Remove Card from Slot",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {\r\n    pm.response.to.have.status(204);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Response body is empty\", function () {\r\n    pm.expect(pm.response.text()).to.eql(\"\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/slots/{{slotId}}/card",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "slots",
+                "{{slotId}}",
+                "card"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "08 Delete Site - Cascade",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 204\", function () {\r\n    pm.response.to.have.status(204);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Response body is empty\", function () {\r\n    pm.expect(pm.response.text()).to.eql(\"\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sites/{{siteId}}?cascade=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sites",
+                "{{siteId}}"
+              ],
+              "query": [
+                {
+                  "key": "cascade",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
