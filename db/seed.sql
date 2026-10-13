@@ -82,3 +82,15 @@ VALUES
     (NULL, 'PN-LINE-002', 'CARD-SN-0010', 'LINE_CARD', 48, 'REV-B', 'IN_STOCK'),
     (NULL, 'PN-CONTROL-001', 'CARD-SN-0011', 'CONTROL_CARD', 8, 'REV-B', 'IN_STOCK'),
     (NULL, 'PN-POWER-001', 'CARD-SN-0012', 'POWER_CARD', 0, 'REV-A', 'IN_STOCK');
+
+
+
+-- admin pass: Admin#2026
+-- user pass: User#2026
+
+INSERT INTO app_user (
+    username, password_hash, role
+)
+VALUES
+    ('admin', '$2a$10$zfvivz73LkhPiPclTmqpQu0zDHQhDCGx.p.7cEg4zvAg9fqH9uDg.', 'ADMIN'),
+    ('user',  '$2a$10$L8oUh1NpiIGGwogOQg0SJ.rliBLaOhlY1Wt4DgQEA.W6Ps/vmaui.', 'USER');
