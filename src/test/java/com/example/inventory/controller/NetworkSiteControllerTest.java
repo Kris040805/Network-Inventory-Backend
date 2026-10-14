@@ -1,6 +1,8 @@
 package com.example.inventory.controller;
 
 
+import com.example.inventory.config.RestAuthenticationEntryPoint;
+import com.example.inventory.config.SecurityConfig;
 import com.example.inventory.dto.request.SiteCreateRequest;
 import com.example.inventory.dto.request.SiteFullUpdateRequest;
 import com.example.inventory.dto.request.SitePartialUpdateRequest;
@@ -13,9 +15,11 @@ import com.example.inventory.service.NetworkSiteService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -28,6 +32,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(NetworkSiteController.class)
+@Import({SecurityConfig.class, RestAuthenticationEntryPoint.class})
+@WithMockUser
 public class NetworkSiteControllerTest {
 
     @Autowired
