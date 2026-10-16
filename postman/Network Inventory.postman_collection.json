@@ -2091,6 +2091,122 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Get Sites - No Credentials",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () {\r\n    pm.response.to.have.status(401);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\npm.test(\"WWW-Authenticate header is Basic\", function () {\r\n    pm.expect(pm.response.headers.get(\"WWW-Authenticate\"))\r\n        .to.include(\"Basic\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Error response has expected format\", function () {\r\n    pm.expect(json.status).to.eql(401);\r\n    pm.expect(json.error).to.eql(\"Unauthorized\");\r\n    pm.expect(json.path).to.eql(\"/api/v1/sites\");\r\n    pm.expect(json).to.have.property(\"timestamp\");\r\n    pm.expect(json).to.have.property(\"message\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sites",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sites"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Sites - Wrong Password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () {\r\n    pm.response.to.have.status(401);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\npm.test(\"WWW-Authenticate header is Basic\", function () {\r\n    pm.expect(pm.response.headers.get(\"WWW-Authenticate\"))\r\n        .to.include(\"Basic\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Error response has expected format\", function () {\r\n    pm.expect(json.status).to.eql(401);\r\n    pm.expect(json.error).to.eql(\"Unauthorized\");\r\n    pm.expect(json.path).to.eql(\"/api/v1/sites\");\r\n    pm.expect(json).to.have.property(\"timestamp\");\r\n    pm.expect(json).to.have.property(\"message\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "wrong-password",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sites",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sites"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
-  ]
+  ],
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "{{username}}",
+        "type": "string"
+      },
+      {
+        "key": "password",
+        "value": "{{password}}",
+        "type": "string"
+      }
+    ]
+  }
 }
