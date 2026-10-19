@@ -1,6 +1,7 @@
 package com.example.inventory.controller;
 
 
+import com.example.inventory.config.RestAccessDeniedHandler;
 import com.example.inventory.config.RestAuthenticationEntryPoint;
 import com.example.inventory.config.SecurityConfig;
 import com.example.inventory.dto.request.SiteCreateRequest;
@@ -32,7 +33,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(NetworkSiteController.class)
-@Import({SecurityConfig.class, RestAuthenticationEntryPoint.class})
+@Import({SecurityConfig.class, RestAuthenticationEntryPoint.class, RestAccessDeniedHandler.class})
 @WithMockUser
 public class NetworkSiteControllerTest {
 
