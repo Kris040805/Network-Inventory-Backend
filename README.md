@@ -177,7 +177,7 @@ The `db/seed.sql` script creates two sample users:
 
 These credentials are intended for local development only and must be changed in any other environment.
 
-Roles are stored and loaded with the user, but they are not enforced yet: any authenticated user can access every endpoint.
+Roles are enforced only for creating users: `POST /api/v1/users` requires the `ADMIN` role. All other endpoints are available to any authenticated user.
 
 ### Sending credentials
 
@@ -195,16 +195,43 @@ curl.exe -u "admin:Admin#2026" http://localhost:8080/api/v1/sites
 
 In Swagger UI, click **Authorize** and enter the username and password. In Postman, the `username` and `password` variables of the environment are used by the collection.
 
-### Adding a user
+### Creating users
 
-Insert a new row into `app_user` with a BCrypt hash of the password (`$2a$` prefix, cost 10):
+Users are created with `POST /api/v1/users`. This endpoint requires the `ADMIN` role.
 
-```sql
-INSERT INTO app_user (username, password_hash, role)
-VALUES ('new_user', '<bcrypt-hash>', 'USER');
+Request body:
+
+| Field      | Required | Rules                                                          |
+| ---------- | -------- | -------------------------------------------------------------- |
+| `username` | yes      | 3-50 characters: letters, digits, `.`, `_` and `-`; must be unique |
+| `password` | yes      | 8-72 characters                                                |
+| `role`     | no       | `ADMIN` or `USER` (default: `USER`)                            |
+
+Example:
+
+```json
+{
+  "username": "new.user",
+  "password": "Str0ng#Pass",
+  "role": "USER"
+}
 ```
 
-To disable a user without deleting it, set `enabled = 0`.
+The response is `201 Created` with the new user. The password and its hash are never returned:
+
+```json
+{
+  "id": 3,
+  "username": "new.user",
+  "role": "USER",
+  "enabled": true,
+  "createdAt": "2026-10-19T10:15:30.123"
+}
+```
+
+Possible errors: `400` (invalid data), `401` (missing or invalid credentials), `403` (the user is not an `ADMIN`) and `409` (the username already exists).
+
+There are no endpoints for changing, disabling or deleting users yet. To disable a user, set `enabled = 0` in the `app_user` table.
 
 ### Authentication errors
 
@@ -219,6 +246,7 @@ Requests without valid credentials receive `401 Unauthorized` with a `WWW-Authen
   "path": "/api/v1/sites"
 }
 ```
+Authenticated users that do not have the required role receive `403 Forbidden` with the same JSON error structure (message: `Access denied: insufficient permissions`).
 
 ### Security note
 
@@ -252,6 +280,7 @@ Files:
 The collection is organized into:
 
 * Authentication
+* Users
 * Sites
 * Routers
 * Shelves
@@ -284,6 +313,8 @@ The collection uses environment variables for the base URL, generated resource I
 
 The `Authentication` folder contains negative requests that verify `401 Unauthorized` responses for missing credentials and a wrong password.
 
+The `Users` folder also uses `regularUsername` and `regularPassword` (a non-admin user, such as the seed user `user`) to verify that regular users cannot create accounts. Each run of the `Users` folder creates a new `postman.*` user, because users cannot be deleted through the API.
+
 ### Running the E2E scenario
 
 1. Start the application.
@@ -313,8 +344,10 @@ The test suite covers:
 * Network inventory lifecycle integration flow
 * Authentication scenarios: missing credentials, wrong password, unknown user, valid credentials, and public Swagger endpoints
 * Unit tests for loading users from the database
+* User creation: validation, duplicate usernames, role restriction (`ADMIN` only) and logging in with a newly created user
 
-The integration tests run against the configured SQL Server database and require the `admin` user from `db/seed.sql`.
+
+The integration tests run against the configured SQL Server database and require the `admin` and `user` accounts from `db/seed.sql`.
 
 ### Run tests
 
@@ -338,16 +371,17 @@ The application uses centralized exception handling through `@RestControllerAdvi
 
 The API returns the following HTTP status codes:
 
-| Status                       | Meaning                              |
-|------------------------------|--------------------------------------|
-| `200 OK`                     | Successful read or update            |
-| `201 Created`                | Resource successfully created        |
-| `204 No Content`             | Resource successfully deleted        |
-| `400 Bad Request`            | Invalid request or validation error  |
-| `401 Unauthorized`           | Missing or invalid credentials       |
-| `404 Not Found`              | Requested resource does not exist    |
-| `409 Conflict`               | Business rule or uniqueness conflict |
-| `500 Internal Server Error`  | Unexpected server error              |
+| Status                       | Meaning                                |
+|------------------------------|----------------------------------------|
+| `200 OK`                     | Successful read or update              |
+| `201 Created`                | Resource successfully created          |
+| `204 No Content`             | Resource successfully deleted          |
+| `400 Bad Request`            | Invalid request or validation error    |
+| `401 Unauthorized`           | Missing or invalid credentials         |
+| `403 Forbidden`              | Not enough permissions for the action  |
+| `404 Not Found`              | Requested resource does not exist      |
+| `409 Conflict`               | Business rule or uniqueness conflict   |
+| `500 Internal Server Error`  | Unexpected server error                |
 
 Error responses contain a consistent structure with fields such as:
 

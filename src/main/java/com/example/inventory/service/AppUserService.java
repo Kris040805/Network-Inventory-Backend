@@ -32,7 +32,7 @@ public class AppUserService {
 
         if (repository.existsByUsername(request.getUsername())) {
             logger.warn("Cannot create account. Account with username {} already exists.", request.getUsername());
-            throw new ConflictException("Account with username " + request.getUsername() + " already exists.");
+            throw new ConflictException("Account with username " + request.getUsername() + " already exists");
         }
 
         String passwordHash = passwordEncoder.encode(request.getPassword());
