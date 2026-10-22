@@ -2091,6 +2091,442 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Get Sites - No Credentials",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () {\r\n    pm.response.to.have.status(401);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\npm.test(\"WWW-Authenticate header is Basic\", function () {\r\n    pm.expect(pm.response.headers.get(\"WWW-Authenticate\"))\r\n        .to.include(\"Basic\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Error response has expected format\", function () {\r\n    pm.expect(json.status).to.eql(401);\r\n    pm.expect(json.error).to.eql(\"Unauthorized\");\r\n    pm.expect(json.path).to.eql(\"/api/v1/sites\");\r\n    pm.expect(json).to.have.property(\"timestamp\");\r\n    pm.expect(json).to.have.property(\"message\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sites",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sites"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Sites - Wrong Password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () {\r\n    pm.response.to.have.status(401);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\npm.test(\"WWW-Authenticate header is Basic\", function () {\r\n    pm.expect(pm.response.headers.get(\"WWW-Authenticate\"))\r\n        .to.include(\"Basic\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Error response has expected format\", function () {\r\n    pm.expect(json.status).to.eql(401);\r\n    pm.expect(json.error).to.eql(\"Unauthorized\");\r\n    pm.expect(json.path).to.eql(\"/api/v1/sites\");\r\n    pm.expect(json).to.have.property(\"timestamp\");\r\n    pm.expect(json).to.have.property(\"message\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "wrong-password",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sites",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sites"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Create User",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const username = \"postman.\" + Date.now().toString().slice(-8);\r\n\r\npm.environment.set(\"testUsername\", username);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains required fields\", function () {\r\n    pm.expect(json).to.have.property(\"id\");\r\n    pm.expect(json).to.have.property(\"username\");\r\n    pm.expect(json).to.have.property(\"role\");\r\n    pm.expect(json).to.have.property(\"enabled\");\r\n    pm.expect(json).to.have.property(\"createdAt\");\r\n});\r\n\r\npm.test(\"Field types are correct\", function () {\r\n    pm.expect(json.id).to.be.a(\"number\");\r\n    pm.expect(json.username).to.be.a(\"string\");\r\n    pm.expect(json.role).to.be.a(\"string\");\r\n    pm.expect(json.enabled).to.be.a(\"boolean\");\r\n});\r\n\r\npm.test(\"Created user has expected values\", function () {\r\n    pm.expect(json.username).to.eql(pm.environment.get(\"testUsername\"));\r\n    pm.expect(json.role).to.eql(\"USER\");\r\n    pm.expect(json.enabled).to.eql(true);\r\n});\r\n\r\npm.test(\"Response does not expose the password or its hash\", function () {\r\n    pm.expect(json).to.not.have.property(\"password\");\r\n    pm.expect(json).to.not.have.property(\"passwordHash\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"username\": \"{{testUsername}}\",\r\n    \"password\": \"Postman#12345\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Sites - As Created User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{testUsername}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "Postman#12345",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/sites",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "sites"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create User - Duplicate Username",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 409\", function () {\r\n    pm.response.to.have.status(409);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains error fields\", function () {\r\n    pm.expect(json).to.have.property(\"timestamp\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n    pm.expect(json).to.have.property(\"error\");\r\n    pm.expect(json).to.have.property(\"message\");\r\n    pm.expect(json).to.have.property(\"path\");\r\n});\r\n\r\npm.test(\"Error status is 409\", function () {\r\n    pm.expect(json.status).to.eql(409);\r\n});\r\n\r\npm.test(\"Error message indicates duplicate username\", function () {\r\n    pm.expect(json.message.toLowerCase()).to.include(\"already exists\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\": \"admin\", \"password\": \"Postman#12345\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create User - Short Password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains error fields\", function () {\r\n    pm.expect(json).to.have.property(\"timestamp\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n    pm.expect(json).to.have.property(\"error\");\r\n    pm.expect(json).to.have.property(\"message\");\r\n    pm.expect(json).to.have.property(\"path\");\r\n});\r\n\r\npm.test(\"Error field types are correct\", function () {\r\n    pm.expect(json.timestamp).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"number\");\r\n    pm.expect(json.error).to.be.a(\"string\");\r\n    pm.expect(json.message).to.be.a(\"string\");\r\n    pm.expect(json.path).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Error status is 400\", function () {\r\n    pm.expect(json.status).to.eql(400);\r\n});\r\n\r\npm.test(\"Error message indicates invalid password\", function () {\r\n    pm.expect(json.message.toLowerCase())\r\n        .to.include(\"password\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\": \"postman.invalid\", \"password\": \"short\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create User - Invalid Role",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {\r\n    pm.response.to.have.status(400);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains error fields\", function () {\r\n    pm.expect(json).to.have.property(\"timestamp\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n    pm.expect(json).to.have.property(\"error\");\r\n    pm.expect(json).to.have.property(\"message\");\r\n    pm.expect(json).to.have.property(\"path\");\r\n});\r\n\r\npm.test(\"Error field types are correct\", function () {\r\n    pm.expect(json.timestamp).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"number\");\r\n    pm.expect(json.error).to.be.a(\"string\");\r\n    pm.expect(json.message).to.be.a(\"string\");\r\n    pm.expect(json.path).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Error status is 400\", function () {\r\n    pm.expect(json.status).to.eql(400);\r\n});\r\n\r\npm.test(\"Error message indicates invalid role\", function () {\r\n    pm.expect(json.message.toLowerCase())\r\n        .to.include(\"role\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\": \"postman.invalid\", \"password\": \"Postman#12345\", \"role\": \"SUPERUSER\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create User - Forbidden For Non-Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () {\r\n    pm.response.to.have.status(403);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains error fields\", function () {\r\n    pm.expect(json).to.have.property(\"timestamp\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n    pm.expect(json).to.have.property(\"error\");\r\n    pm.expect(json).to.have.property(\"message\");\r\n    pm.expect(json).to.have.property(\"path\");\r\n});\r\n\r\npm.test(\"Error field types are correct\", function () {\r\n    pm.expect(json.timestamp).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"number\");\r\n    pm.expect(json.error).to.be.a(\"string\");\r\n    pm.expect(json.message).to.be.a(\"string\");\r\n    pm.expect(json.path).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Error status is 403\", function () {\r\n    pm.expect(json.status).to.eql(403);\r\n});\r\n\r\npm.test(\"Error indicates access is forbidden\", function () {\r\n    pm.expect(json.error).to.eql(\"Forbidden\");\r\n    pm.expect(json.message).to.eql(\"Access denied: insufficient permissions\");\r\n});\r\n\r\npm.test(\"Response does not ask for new credentials\", function () {\r\n    pm.expect(pm.response.headers.has(\"WWW-Authenticate\")).to.be.false;\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{regularUsername}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{regularPassword}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\": \"postman.forbidden\", \"password\": \"Postman#12345\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create User - No Credentials",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () {\r\n    pm.response.to.have.status(401);\r\n});\r\n\r\npm.test(\"Response time is below 2000ms\", function () {\r\n    pm.expect(pm.response.responseTime).to.be.below(2000);\r\n});\r\n\r\npm.test(\"Content-Type is application/json\", function () {\r\n    pm.expect(pm.response.headers.get(\"Content-Type\"))\r\n        .to.include(\"application/json\");\r\n});\r\n\r\npm.test(\"WWW-Authenticate header is Basic\", function () {\r\n    pm.expect(pm.response.headers.get(\"WWW-Authenticate\"))\r\n        .to.include(\"Basic\");\r\n});\r\n\r\nconst json = pm.response.json();\r\n\r\npm.test(\"Response contains error fields\", function () {\r\n    pm.expect(json).to.have.property(\"timestamp\");\r\n    pm.expect(json).to.have.property(\"status\");\r\n    pm.expect(json).to.have.property(\"error\");\r\n    pm.expect(json).to.have.property(\"message\");\r\n    pm.expect(json).to.have.property(\"path\");\r\n});\r\n\r\npm.test(\"Error field types are correct\", function () {\r\n    pm.expect(json.timestamp).to.be.a(\"string\");\r\n    pm.expect(json.status).to.be.a(\"number\");\r\n    pm.expect(json.error).to.be.a(\"string\");\r\n    pm.expect(json.message).to.be.a(\"string\");\r\n    pm.expect(json.path).to.be.a(\"string\");\r\n});\r\n\r\npm.test(\"Error status is 401\", function () {\r\n    pm.expect(json.status).to.eql(401);\r\n});\r\n\r\npm.test(\"Error indicates missing or invalid credentials\", function () {\r\n    pm.expect(json.error).to.eql(\"Unauthorized\");\r\n    pm.expect(json.message.toLowerCase()).to.include(\"credentials\");\r\n});\r\n\r\npm.test(\"Error path is the users endpoint\", function () {\r\n    pm.expect(json.path).to.eql(\"/api/v1/users\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\": \"postman.forbidden\", \"password\": \"Postman#12345\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
-  ]
+  ],
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "{{username}}",
+        "type": "string"
+      },
+      {
+        "key": "password",
+        "value": "{{password}}",
+        "type": "string"
+      }
+    ]
+  }
 }

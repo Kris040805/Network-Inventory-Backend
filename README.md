@@ -15,6 +15,7 @@ REST API backend for managing a network inventory consisting of network sites, r
 * JUnit 5
 * Mockito
 * Postman
+* Spring Security (HTTP Basic authentication)
 
 
 
@@ -51,8 +52,8 @@ The application uses Microsoft SQL Server.
 
 Database scripts are located in the `db/` directory:
 
-* `schema.sql` — creates the database tables, constraints, and indexes.
-* `seed.sql` — inserts sample network inventory data.
+* `schema.sql` — creates the database tables (including `app_user` for authentication), constraints, and indexes.
+* `seed.sql` — inserts sample network inventory data and sample users (see [Authentication](#authentication)).
 * `drop.sql` — removes the created database objects.
 
 ### Setup
@@ -154,6 +155,104 @@ Card installation and removal are handled through the slot resource:
 
 
 
+## Authentication   
+
+The API is protected with HTTP Basic authentication. Every request to `/api/v1/**` must include valid credentials.
+
+The following paths are public:
+
+* `/swagger-ui.html` and `/swagger-ui/**`
+* `/v3/api-docs/**`
+
+### Users
+
+Users are stored in the `app_user` table. Passwords are stored as BCrypt hashes and never in plain text.
+
+The `db/seed.sql` script creates two sample users:
+
+| Username | Password     | Role    |
+| -------- | ------------ | ------- |
+| `admin`  | `Admin#2026` | `ADMIN` |
+| `user`   | `User#2026`  | `USER`  |
+
+These credentials are intended for local development only and must be changed in any other environment.
+
+Roles are enforced only for creating users: `POST /api/v1/users` requires the `ADMIN` role. All other endpoints are available to any authenticated user.
+
+### Sending credentials
+
+Send the credentials in the `Authorization` header as `Basic` followed by the Base64 encoding of `username:password`:
+
+```text
+Authorization: Basic <base64(username:password)>
+```
+
+Example:
+
+```powershell
+curl.exe -u "admin:Admin#2026" http://localhost:8080/api/v1/sites
+```
+
+In Swagger UI, click **Authorize** and enter the username and password. In Postman, the `username` and `password` variables of the environment are used by the collection.
+
+### Creating users
+
+Users are created with `POST /api/v1/users`. This endpoint requires the `ADMIN` role.
+
+Request body:
+
+| Field      | Required | Rules                                                          |
+| ---------- | -------- | -------------------------------------------------------------- |
+| `username` | yes      | 3-50 characters: letters, digits, `.`, `_` and `-`; must be unique |
+| `password` | yes      | 8-72 characters                                                |
+| `role`     | no       | `ADMIN` or `USER` (default: `USER`)                            |
+
+Example:
+
+```json
+{
+  "username": "new.user",
+  "password": "Str0ng#Pass",
+  "role": "USER"
+}
+```
+
+The response is `201 Created` with the new user. The password and its hash are never returned:
+
+```json
+{
+  "id": 3,
+  "username": "new.user",
+  "role": "USER",
+  "enabled": true,
+  "createdAt": "2026-10-19T10:15:30.123"
+}
+```
+
+Possible errors: `400` (invalid data), `401` (missing or invalid credentials), `403` (the user is not an `ADMIN`) and `409` (the username already exists).
+
+There are no endpoints for changing, disabling or deleting users yet. To disable a user, set `enabled = 0` in the `app_user` table.
+
+### Authentication errors
+
+Requests without valid credentials receive `401 Unauthorized` with a `WWW-Authenticate: Basic` header and the standard JSON error structure:
+
+```json
+{
+  "timestamp": "...",
+  "status": 401,
+  "error": "Unauthorized",
+  "message": "Authentication failed: invalid or missing credentials",
+  "path": "/api/v1/sites"
+}
+```
+Authenticated users that do not have the required role receive `403 Forbidden` with the same JSON error structure (message: `Access denied: insufficient permissions`).
+
+### Security note
+
+HTTP Basic authentication sends the credentials with every request. They are only Base64-encoded, not encrypted. Use HTTPS in any environment other than local development.
+
+
 ## API Documentation
 
 The API is documented using OpenAPI and can be explored through Swagger UI.
@@ -166,6 +265,7 @@ http://localhost:8080/swagger-ui.html
 
 Swagger UI provides an interactive overview of the available endpoints, request parameters, request bodies, and response models.
 
+Swagger UI itself is public. To try the protected endpoints, click **Authorize** and enter a username and password (see [Authentication](#authentication)).
 
 
 ## Postman
@@ -179,6 +279,8 @@ Files:
 
 The collection is organized into:
 
+* Authentication
+* Users
 * Sites
 * Routers
 * Shelves
@@ -207,13 +309,17 @@ Remove Card from Slot
 Delete Site (cascade)
 ```
 
-The collection uses environment variables for the base URL and generated resource IDs.
+The collection uses environment variables for the base URL, generated resource IDs, and credentials. Basic authentication is configured once at the collection level and uses the `username` and `password` variables. The `password` value is not stored in the repository, so set it locally in the environment (for example, the password of a seed user).
+
+The `Authentication` folder contains negative requests that verify `401 Unauthorized` responses for missing credentials and a wrong password.
+
+The `Users` folder also uses `regularUsername` and `regularPassword` (a non-admin user, such as the seed user `user`) to verify that regular users cannot create accounts. Each run of the `Users` folder creates a new `postman.*` user, because users cannot be deleted through the API.
 
 ### Running the E2E scenario
 
 1. Start the application.
 2. Open the `Network Inventory` collection in Postman.
-3. Select `Network Inventory Environment`.
+3. Select `Network Inventory Environment` and set the `username` and `password` variables.
 4. Run the `Scenario (E2E)` folder using the Collection Runner.
 5. Verify that all requests and tests pass.
 
@@ -236,6 +342,12 @@ The test suite covers:
 * Cascade deletion behavior
 * Full CRUD integration flows
 * Network inventory lifecycle integration flow
+* Authentication scenarios: missing credentials, wrong password, unknown user, valid credentials, and public Swagger endpoints
+* Unit tests for loading users from the database
+* User creation: validation, duplicate usernames, role restriction (`ADMIN` only) and logging in with a newly created user
+
+
+The integration tests run against the configured SQL Server database and require the `admin` and `user` accounts from `db/seed.sql`.
 
 ### Run tests
 
@@ -259,15 +371,17 @@ The application uses centralized exception handling through `@RestControllerAdvi
 
 The API returns the following HTTP status codes:
 
-| Status                      | Meaning                              |
-| --------------------------- | ------------------------------------ |
-| `200 OK`                    | Successful read or update            |
-| `201 Created`               | Resource successfully created        |
-| `204 No Content`            | Resource successfully deleted        |
-| `400 Bad Request`           | Invalid request or validation error  |
-| `404 Not Found`             | Requested resource does not exist    |
-| `409 Conflict`              | Business rule or uniqueness conflict |
-| `500 Internal Server Error` | Unexpected server error              |
+| Status                       | Meaning                                |
+|------------------------------|----------------------------------------|
+| `200 OK`                     | Successful read or update              |
+| `201 Created`                | Resource successfully created          |
+| `204 No Content`             | Resource successfully deleted          |
+| `400 Bad Request`            | Invalid request or validation error    |
+| `401 Unauthorized`           | Missing or invalid credentials         |
+| `403 Forbidden`              | Not enough permissions for the action  |
+| `404 Not Found`              | Requested resource does not exist      |
+| `409 Conflict`               | Business rule or uniqueness conflict   |
+| `500 Internal Server Error`  | Unexpected server error                |
 
 Error responses contain a consistent structure with fields such as:
 
@@ -298,3 +412,5 @@ The backend enforces the following business rules:
 * Slot numbers are unique within a shelf.
 * Installing a card into an occupied slot is rejected.
 * Deleting a resource with children is rejected unless `cascade=true` is provided.
+
+

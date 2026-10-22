@@ -174,3 +174,26 @@ CREATE TABLE card (
 CREATE UNIQUE NONCLUSTERED INDEX UQ_card_slot
               ON card(slot_id)
               WHERE slot_id IS NOT NULL;
+
+
+
+CREATE TABLE app_user (
+    id BIGINT IDENTITY(1, 1) NOT NULL,
+    username VARCHAR(50) NOT NULL,
+    password_hash VARCHAR(100) NOT NULL,
+    role VARCHAR(20) NOT NULL
+                      CONSTRAINT DF_app_user_role
+                      DEFAULT 'USER',
+    enabled BIT NOT NULL
+                      CONSTRAINT DF_app_user_enabled
+                      DEFAULT 1,
+    created_at DATETIME2 NOT NULL
+        CONSTRAINT DF_app_user_created_at
+        DEFAULT SYSUTCDATETIME(),
+
+    CONSTRAINT PK_app_user
+                      PRIMARY KEY (id),
+
+    CONSTRAINT UQ_app_user_username
+                      UNIQUE (username)
+);
