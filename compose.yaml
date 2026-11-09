@@ -22,6 +22,7 @@ services:
     environment:
       MSSQL_SA_PASSWORD: ${DB_SA_PASSWORD}
       DB_NAME: ${DB_NAME}
+      DB_APP_PASSWORD: ${DB_APP_PASSWORD}
     volumes:
       - ./db:/db:ro
     entrypoint: ["/bin/bash", "db/init.sh"]
@@ -33,8 +34,8 @@ services:
         condition: service_completed_successfully
     environment:
       SPRING_DATASOURCE_URL: jdbc:sqlserver://db:1433;databaseName=${DB_NAME};encrypt=true;trustServerCertificate=true
-      SPRING_DATASOURCE_USERNAME: sa
-      SPRING_DATASOURCE_PASSWORD: ${DB_SA_PASSWORD}
+      SPRING_DATASOURCE_USERNAME: inventory_app
+      SPRING_DATASOURCE_PASSWORD: ${DB_APP_PASSWORD}
     ports:
       - "8080:8080"
     healthcheck:
