@@ -119,6 +119,75 @@ http://localhost:8080
 ```
 
 
+## Run with Podman (containers)
+
+The whole stack (SQL Server, the application and the Postman tests) can run in containers, without installing Java ot SQL Server locally.
+
+### Requirements
+
+* Podman (on Windows: Podman Desktop with a WSL2 machine)
+* A compose provider: `docker-compose` (installed through Podman Desktop) or `podman-compose`
+* About 4 GB of free memory for Podman machine, SQL Server needs at least 2 GB
+
+### Configuration
+
+Copy the example file and adjust the values:
+
+```powershell
+Copy-Item .env.example .env
+```
+| Variable | Description |
+|---|---|
+| `DB_NAME` | Name of the database created on first start |
+| `DB_SA_PASSWORD` | Password of the SQL Server `sa` account. It must meet the SQL Server complexity rules (at least 8 characters, three of: uppercase, lowercase, digits, symbols) |
+| `API_ADMIN_PASSWORD` | Password of the `admin` API user from `db/seed.sql`, used by the Postman tests |
+| `DB_APP_PASSWORD` | Password of the `inventory_app` database user that the application uses. It must meet the same complexity rules as `DB_SA_PASSWORD` |
+
+The `sa` password is stored in the database volume on the first start. If you change `DB_SA_PASSWORD` later, remove the volume (see below), otherwise the application cannot log in.
+
+### Start
+
+```powershell
+podman compose up -d --build
+```
+
+This builds the application image and starts SQL Server, the one-shot `db-init` service and the application. On the first start `db-init` creates the database and runs `db/schema.sql` and `db/seed.sql`. On every start it also creates the `inventory_app` user (or updates its password) with the `db_datareader` and `db_datawriter` roles. The application connects with this user, while the `sa` account is used only by `db-init`.
+
+Swagger UI is available at `http://localhost:8080/swagger-ui.html`.
+
+### Run the API tests
+
+The Postman collection runs in a separate Newman container. It is not started by `up`, only on demand:
+
+```powershell
+podman compose --profile test run --rm newman
+```
+
+It runs the `Scenario (E2E)` folder against the running application and exits with code `0` if all assertions pass. The scenario removes the data it creates.
+
+### Stop and reset
+
+Stop the containers and keep the database data:
+
+```powershell
+podman compose --profile test down
+```
+
+Stop the containers and delete the database data as well (the next start recreates the database from `db/schema.sql` and `db/seed.sql`):
+
+```powershell
+podman compose --profile test down -v
+```
+
+### Notes
+
+**Ports.** The database is published on port `1433` and the application on `8080`. If one of them is already in use on your machine, change the left number in the `ports` section of `compose.yaml` (for example `"1434:1433"`). The containers talk to each other over the internal network, so this does not affect the application.
+
+**Windows.** If `podman compose` fails with `failed to connect to the docker API` and `podman machine start` reports that `win-sshproxy.exe` failed to start, a stale socket file is blocking it. Stop the machine, delete `%LOCALAPPDATA%\Temp\podman\podman-machine-default-api.sock` and start the machine again.
+
+**Initialization.** `db-init` creates and fills the database only if it does not exist yet, but it creates the application user on every start. If `db/schema.sql` or `db/seed.sql` fails after the database was created, the next start skips them. Remove the volume with `podman compose --profile test down -v` and start again.
+
+**Development only.** The example passwords are for local development. For a real deployment use secrets instead of a `.env` file.
 
 ## API
 

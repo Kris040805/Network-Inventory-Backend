@@ -1,0 +1,64 @@
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${DB_SA_PASSWORD}
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -Q \"SELECT 1\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+  db-init:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      MSSQL_SA_PASSWORD: ${DB_SA_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_APP_PASSWORD: ${DB_APP_PASSWORD}
+    volumes:
+      - ./db:/db:ro
+    entrypoint: ["/bin/bash", "db/init.sh"]
+    restart: "no"
+  app:
+    build: .
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:sqlserver://db:1433;databaseName=${DB_NAME};encrypt=true;trustServerCertificate=true
+      SPRING_DATASOURCE_USERNAME: inventory_app
+      SPRING_DATASOURCE_PASSWORD: ${DB_APP_PASSWORD}
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f -s -o /dev/null http://localhost:8080/v3/api-docs || 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+  newman:
+    build: ./postman
+    profiles: ["test"]
+    depends_on:
+      app:
+        condition: service_healthy
+    command:
+      - "--folder"
+      - "Scenario (E2E)"
+      - "--env-var"
+      - "baseUrl=http://app:8080"
+      - "--env-var"
+      - "username=admin"
+      - "--env-var"
+      - "password=${API_ADMIN_PASSWORD}"
+
+volumes:
+  sqlserver-data:
