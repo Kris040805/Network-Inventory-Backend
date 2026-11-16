@@ -189,6 +189,65 @@ podman compose --profile test down -v
 
 **Development only.** The example passwords are for local development. For a real deployment use secrets instead of a `.env` file.
 
+
+## CI with Jenkins
+
+The repository contains a `Jenkinsfile` that builds and runs the application in a local Jenkins running in a container.
+
+### How it works
+
+Jenkins runs in its own container (image built from `jenkins/Dockerfile`: the official Jenkins image plus the docker CLI and the compose plugin). The Podman socket is mounted into it, so the `docker compose` commands of the pipeline are executed by Podman and the project containers run next to the Jenkins container.
+
+The pipeline (`Jenkinsfile`) has two stages:
+
+1. **Build** - `docker compose build` builds the `db-init` and `app` images.
+2. **Run** - removes leftovers of a previous run, starts `db`, `db-init` and `app`, and waits until the `app` healthcheck reports `healthy` (it fails after about 2.5 minutes).
+
+After the pipeline finishes, the stack is stopped and its data is removed (`post` section). The passwords are not stored in the repository: the pipeline reads them from Jenkins credentials.
+
+### Start Jenkins
+
+```powershell
+podman build -t jenkins-podman:lts ./jenkins
+```
+
+```powershell
+podman run -d `
+  --name jenkins `
+  --user root `
+  -p 8081:8080 `
+  -v jenkins_home:/var/jenkins_home `
+  -v /run/podman/podman.sock:/var/run/docker.sock `
+  jenkins-podman:lts
+```
+
+Jenkins is available at `http://localhost:8081`. The `jenkins_home` volume keeps its settings, so later it is enough to run `podman start jenkins`. The initial admin password is printed in `podman logs jenkins` or can be read with:
+
+```powershell
+podman exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+```
+
+### Configure Jenkins (once)
+
+1. Install the suggested plugins and create an admin user.
+2. In **Manage Jenkins > Credentials > (global)** add three **Secret text** credentials:
+
+| ID | Value |
+|---|---|
+| `db-sa-password` | password of the SQL Server `sa` account |
+| `db-app-password` | password of the `inventory_app` database user |
+| `api-admin-password` | password of the API `admin` user (`Admin#2026` for the seed data) |
+
+3. Create a **Pipeline** item with **Pipeline script from SCM**: SCM `Git`, the repository URL, the branch to build and Script Path `Jenkinsfile`.
+4. Run it with **Build Now**.
+
+### Notes
+
+* Ports `8080` and `1433` must be free while the pipeline runs, so stop the local stack first (`podman compose --profile test down`).
+* Jenkins is published on port `8081` because `8080` is used by the application.
+* `db-init` has its own image (`db/Dockerfile`) with the SQL scripts inside. A bind mount would not work, because the compose commands run inside the Jenkins container, but the Podman machine resolves the paths.
+
+
 ## API
 
 The API uses the following base path:
